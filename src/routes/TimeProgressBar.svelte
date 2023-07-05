@@ -7,29 +7,36 @@
 	export let startedOn: string|null = null;
 	export let stoppedOn: string|null = null;
 	let elapsedTime: number|undefined = 0;
-	let elapsed: number;
 	let barColor = "hsl(200,100%,50%)";
+
+	let interval: ReturnType<typeof setInterval>;
+	$: {
+		clearInterval(interval);
+		interval = setInterval(() => {
+			if(startedOn) {
+				elapsedTime = (Date.now() - Date.parse(startedOn))/1000;
+			}
+		}, 1000);
+	}
 
 	$: totalTime = extraTime + baseTime;
 	$: {
 		if(stoppedOn) {
 			elapsedTime = totalTime;
 		}
-		else if(startedOn) {
-			elapsedTime = (Date.now() - Date.parse(startedOn))/1000;
-		}
-		else {
+		else if(!startedOn) {
 			elapsedTime = undefined;
 		}
 		if(elapsedTime) {
-			elapsed = totalTime == 0 ? 1 : elapsedTime/totalTime;
+			const elapsed = totalTime == 0 ? 1 : elapsedTime/totalTime;
 			barColor = getPercentageColor(1-elapsed);
 		}
 	}
 
+
 	function getPercentageColor(value: number) {
 		var hue=((value)*120).toString(10);
-		return ["hsl(",hue,",60%,45%)"].join("");
+		return ["hsl(",hue,",80%,40%)"].join("");
 	}
 </script>
 

@@ -14,11 +14,11 @@
 				<header>
 					<img src={room.image_url} class="w-full aspect-[21/9]"/>
 
-					<TimeProgressBar label="Time left" baseTime={room.base_time} extraTime={room.extraTime} startedOn={room.started_on} stoppedOn={room.stopped_on}  />
-					<ProgressBar rounded="rounded-none" label="Progress" value={room.completion} max={room.max_completion} meter="bg-primary-50" />
+					<TimeProgressBar label="Time left" baseTime={room.base_time} extraTime={room.extra_time} startedOn={room.started_on} stoppedOn={room.stopped_on}  />
+					<ProgressBar rounded="rounded-none" label="Progress" value={room.completion} max={room.max_completion} meter="bg-primary-800" />
 				</header>
-				<section class="p-4">
-					<h2 class="text-2xl">{room.name}</h2>
+				<section class="p-2">
+					<h2 class="text-md font-semibold">{room.name}</h2>
 				</section>
 			</li>
 		{/each}

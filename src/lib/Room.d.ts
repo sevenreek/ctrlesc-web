@@ -12,9 +12,9 @@ interface RoomDisplay {
     state: RoomState;
     base_time: number;
     extra_time: number;
-    started_on: Date;
-    paused_on: Date;
-    stopped_on: Date;
+    started_on: string;
+    paused_on: string;
+    stopped_on: string;
     completion: number;
     name: string;
     image_url: string;
