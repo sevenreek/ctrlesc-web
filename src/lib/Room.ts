@@ -1,4 +1,4 @@
-enum RoomState {
+export enum RoomState {
     READY = "ready",
     ACTIVE = "active",
     PAUSED = "paused",
@@ -6,17 +6,18 @@ enum RoomState {
     STOPPED = "stopped"
 }
 
-interface RoomDisplay {
+export interface RoomBase {
     id: number;
     slug: string;
     state: RoomState;
     base_time: number;
     extra_time: number;
-    started_on: string;
-    paused_on: string;
-    stopped_on: string;
+    started_on?: string;
+    paused_on?: string;
+    stopped_on?: string;
     completion: number;
     name: string;
-    image_url: string;
+    image_url?: string;
     max_completion: number;
 }
+

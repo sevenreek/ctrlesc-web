@@ -1,27 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { ProgressBar } from '@skeletonlabs/skeleton';
-	import TimeProgressBar from './TimeProgressBar.svelte';
+	import RoomOverviewCard from './RoomOverviewCard.svelte';
+	import 'iconify-icon';
 	export let data: PageData;
-	$: console.log(data)
+	$: console.log(data);
 </script>
-
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<ul class="flex flex-wrap flex-row justify-center gap-4">
 		{#each data.rooms as room}
-			<li class="block card overflow-hidden w-72">
-				<header>
-					<img src={room.image_url} class="w-full aspect-[21/9]"/>
-
-					<TimeProgressBar label="Time left" baseTime={room.base_time} extraTime={room.extra_time} startedOn={room.started_on} stoppedOn={room.stopped_on}  />
-					<ProgressBar rounded="rounded-none" label="Progress" value={room.completion} max={room.max_completion} meter="bg-primary-800" />
-				</header>
-				<section class="p-2">
-					<h2 class="text-md font-semibold">{room.name}</h2>
-				</section>
+			<li>
+				<RoomOverviewCard {room} />
 			</li>
 		{/each}
 	</ul>
 </div>
-
