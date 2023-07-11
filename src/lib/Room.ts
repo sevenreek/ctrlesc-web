@@ -10,14 +10,14 @@ export interface RoomBase {
     id: number;
     slug: string;
     state: RoomState;
-    base_time: number;
-    extra_time: number;
-    started_on?: string;
-    paused_on?: string;
-    stopped_on?: string;
+    baseTime: number;
+    extraTime: number;
+    startedOn?: string;
+    pausedOn?: string;
+    stoppedOn?: string;
     completion: number;
     name: string;
-    image_url?: string;
-    max_completion: number;
+    imageUrl?: string;
+    maxCompletion: number;
 }
 

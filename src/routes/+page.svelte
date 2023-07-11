@@ -6,10 +6,10 @@
 	$: console.log(data);
 </script>
 
-<div class="container h-full mx-auto flex justify-center items-center">
+<div class="container h-full mx-auto flex justify-center items-center p-12">
 	<ul class="flex flex-wrap flex-row justify-center gap-4">
 		{#each data.rooms as room}
-			<li>
+			<li class="w-96 xl:w-[49%]">
 				<RoomOverviewCard {room} />
 			</li>
 		{/each}

@@ -38,6 +38,7 @@
 		"@floating-ui/dom": "^1.4.3",
 		"@sveltejs/adapter-auto": "^2.1.0",
 		"@sveltejs/kit": "^1.21.0",
+		"dayjs": "^1.11.9",
 		"iconify-icon": "^1.0.8",
 		"svelte": "^4.0.2"
 	}
