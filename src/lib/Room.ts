@@ -19,5 +19,6 @@ export interface RoomBase {
     name: string;
     imageUrl?: string;
     maxCompletion: number;
+    stage?: string
 }
 

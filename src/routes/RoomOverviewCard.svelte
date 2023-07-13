@@ -3,6 +3,7 @@
 	import type { RoomBase } from '$lib/Room';
 	import 'iconify-icon';
 	import LabelledProgressBar from '$lib/LabelledProgressBar.svelte';
+	import { getElapsedSeconds, formatDuration } from '$lib/timeutil';
 
 	export let room: RoomBase;
 
@@ -14,6 +15,7 @@
 	let elapsedTimeProgressBarValue: number | undefined = elapsedTime;
 	let remainingTimeString = '';
 	let timeMeterColor = 'bg-primary-600';
+	let totalTime = 0;
 	const {
 		extraTime,
 		baseTime,
@@ -23,35 +25,13 @@
 		completion,
 		maxCompletion,
 		name,
-		slug
+		slug,
+		stage
 	} = room;
 
-	function getElapsedSeconds(startedOnDate?: string | Date) {
-		if (!startedOnDate) return undefined;
-		return Math.floor((Date.now() - new Date(startedOnDate).getTime()) / 1000);
-	}
-
-	function formatDuration(durationInSeconds?: number) {
-		if (durationInSeconds == null) return '';
-		let sign = '';
-		if (durationInSeconds < 0) {
-			durationInSeconds = Math.abs(durationInSeconds);
-			sign = '-';
-		}
-		const seconds = durationInSeconds % 60;
-		const minutes = Math.floor(durationInSeconds / 60) % 60;
-		const hours = Math.floor(durationInSeconds / 3600);
-		const formattedSeconds = String(seconds).padStart(2, '0');
-		const formattedMinutes = hours
-			? String(minutes).padStart(2, '0').concat(':')
-			: String(minutes).concat(':');
-		const formattedHours = hours ? String(hours).concat(':') : '';
-		return `${sign}${formattedHours}${formattedMinutes}${formattedSeconds}`;
-	}
-
-	$: totalTime = extraTime + baseTime;
-	$: elapsedTime = getElapsedSeconds(startedOn);
 	$: {
+		totalTime = extraTime + baseTime;
+		elapsedTime = getElapsedSeconds(startedOn);
 		elapsedTimeProgressBarValue = elapsedTime;
 		elapsedTimeString = formatDuration(elapsedTime);
 		remainingTimeString = formatDuration(totalTime - (elapsedTime ?? 0));
@@ -110,10 +90,9 @@
 			<div class="grow">
 				<h3 class="text-lg font-bold">
 					{name}
-					<iconify-icon class="text-md text-error-500" icon="mingcute:alert-octagon-fill" />
 				</h3>
 				<div class="text-xs opacity-60">
-					<span>Collecting bottlecaps</span>
+					<span>{stage ?? '-'}</span>
 				</div>
 			</div>
 		</a>
@@ -125,18 +104,22 @@
 				label="Time left"
 				value={elapsedTimeProgressBarValue}
 				max={totalTime}
-				leftText={elapsedTimeString}
-				rightText={remainingTimeString}
 				meter={timeMeterColor}
-			/>
+			>
+				<span class="text-sm" slot="left">{elapsedTimeString}</span>
+				<span class="text-sm" slot="right">{remainingTimeString}</span>
+			</LabelledProgressBar>
 			<LabelledProgressBar
-				class="mt-3"
+				class="mt-2"
 				label="Progress"
 				value={completion}
 				max={maxCompletion}
-				leftText={`${Math.floor((completion / maxCompletion) * 100)}%`}
 				meter="bg-secondary-600"
-			/>
+			>
+				<span class="text-sm" slot="left">
+					{`${Math.floor((completion / maxCompletion) * 100)}%`}
+				</span>
+			</LabelledProgressBar>
 		</div>
 		<div class="grow-[1] flex flex-col items-end">
 			<span class="text-md">16:45</span>
