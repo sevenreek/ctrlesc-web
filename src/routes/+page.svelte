@@ -3,7 +3,6 @@
 	import RoomOverviewCard from './RoomOverviewCard.svelte';
 	import 'iconify-icon';
 	export let data: PageData;
-	$: console.log(data);
 </script>
 
 <div class="container h-full mx-auto flex justify-center items-center p-12">

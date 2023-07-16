@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { RoomState } from '$lib/Room';
-	import type { RoomBase } from '$lib/Room';
+	import type { RoomDisplay } from '$lib/Room';
 	import 'iconify-icon';
 	import LabelledProgressBar from '$lib/LabelledProgressBar.svelte';
 	import { getElapsedSeconds, formatDuration } from '$lib/timeutil';
 
-	export let room: RoomBase;
+	export let room: RoomDisplay;
 
 	let interval: ReturnType<typeof setInterval>;
 	let icon = '';
