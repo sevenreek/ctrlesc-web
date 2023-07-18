@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { RoomDetails } from '$lib/Room';
+	import 'iconify-icon';
 	import { RoomState } from '$lib/Room';
 	import { formatDuration, getElapsedSeconds } from '$lib/timeutil';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
@@ -20,7 +21,7 @@
 	} = room;
 	const activeStage = stages[activeStageIndex];
 
-	let stateMessage = '';
+	let icon = '';
 	let interval: ReturnType<typeof setInterval>;
 	let elapsedTime: number | undefined = undefined;
 	let elapsedTimeString = '';
@@ -48,23 +49,23 @@
 		}
 		switch (state) {
 			case RoomState.READY:
-				stateMessage = 'READY';
+				icon = 'mingcute:door-fill';
 				elapsedTimeString = 'Ready';
 				break;
 			case RoomState.ACTIVE:
-				stateMessage = 'ONGOING';
+				icon = 'mingcute:play-fill';
 				break;
 			case RoomState.PAUSED:
-				stateMessage = 'PAUSED';
+				icon = 'mingcute:pause-fill';
 				break;
 			case RoomState.FINISHED:
-				stateMessage = 'DONE';
+				icon = 'mingcute:flag-4-fill';
 				elapsedTimeString = 'Done';
 				remainingTimeString = '';
 				elapsedTimeProgressBarValue = totalTime;
 				break;
 			case RoomState.STOPPED:
-				stateMessage = 'STOPPED';
+				icon = 'mingcute:stop-fill';
 				break;
 		}
 		clearInterval(interval);
@@ -76,8 +77,8 @@
 	}
 </script>
 
-<div class="flex flex-row gap-4">
-	<div class="flex flex-col justify-center gap-2">
+<div class="flex flex-col sm:flex-row gap-4">
+	<div class="flex flex-row sm:flex-col justify-center gap-2">
 		<button type="button" class="btn btn-sm variant-filled-success">
 			<span>+5 min</span>
 		</button>
@@ -85,12 +86,16 @@
 			<span>-5 min</span>
 		</button>
 	</div>
-	<ProgressRadial
-		label="Time left"
-		value={elapsedTimeProgressBarValue}
-		width="w-40"
-		meter={timeMeterColor}
-	/>
+	<div class="grid items-center justify-items-center">
+		<ProgressRadial
+			class="col-span-full row-span-full"
+			label="Time left"
+			value={elapsedTimeProgressBarValue}
+			width="w-20 md:w-40"
+			meter={timeMeterColor}
+		/>
+		<iconify-icon class="text-3xl md:text-4xl col-span-full row-span-full" {icon} />
+	</div>
 	<div class="grid grid-cols-2 content-center gap-x-8 gap-y-4">
 		<div>
 			<div class="text-2xl">{elapsedTimeString}</div>
