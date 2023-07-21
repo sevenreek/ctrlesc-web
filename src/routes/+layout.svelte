@@ -1,4 +1,4 @@
-<script lang='ts'>
+<script lang="ts">
 	// The ordering of these imports is critical to your app working properly
 	import '@skeletonlabs/skeleton/themes/theme-skeleton.css';
 	// If you have source.organizeImports set to true in VSCode, then it will auto change this ordering
@@ -8,19 +8,36 @@
 	import { AppShell, AppBar, LightSwitch } from '@skeletonlabs/skeleton';
 	import { Drawer, drawerStore } from '@skeletonlabs/skeleton';
 
+	import { fly } from 'svelte/transition';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
-
+	import Toast from '$lib/Notifications/Toast.svelte';
+	import { NotificationType, UINotification, notifications } from '$lib/Notifications';
 
 	function drawerOpen(): void {
 		drawerStore.open({});
 	}
-	
+	new UINotification(
+		NotificationType.INFO,
+		{
+			message:
+				"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+		},
+		0
+	).show();
+	new UINotification(
+		NotificationType.WARN,
+		{
+			message: 'Actions test',
+			actions: [{ text: 'Pause', onClick: () => {} }]
+		},
+		0
+	).show();
 </script>
 
 <Drawer>
 	<h2 class="p-4">Navigation</h2>
-	<hr/>
-	<Navigation/>
+	<hr />
+	<Navigation />
 </Drawer>
 
 <!-- App Shell -->
@@ -40,20 +57,27 @@
 						</span>
 					</button>
 					<strong class="text-xl uppercase">
-					<sup class="-mr-2">ctrl</sup>
+						<sup class="-mr-2">ctrl</sup>
 						<span class="-mr-2">+</span>
-					<sub>esc</sub>
+						<sub>esc</sub>
 					</strong>
 				</div>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
-				<LightSwitch/>
+				<LightSwitch />
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<Navigation/>
+		<Navigation />
 	</svelte:fragment>
 	<!-- Page Route Content -->
 	<slot />
+	<aside class="fixed right-4 bottom-4 flex flex-col gap-2 w-96">
+		{#each $notifications as notification (notification.id)}
+			<div in:fly={{ duration: 200 }} out:fly={{ duration: 200 }}>
+				<Toast {notification} />
+			</div>
+		{/each}
+	</aside>
 </AppShell>

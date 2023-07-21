@@ -1,5 +1,4 @@
 import { writable, type Writable } from 'svelte/store';
-import type { Fragment } from 'svelte/types/compiler/interfaces';
 
 export enum NotificationType {
 	INFO = 'info',
@@ -8,27 +7,43 @@ export enum NotificationType {
 	ERROR = 'error'
 }
 
-export class Notification {
+export type NotificationAction = {
+	onClick: () => void;
+	icon?: string;
+	text?: string;
+};
+
+export interface NotificationContent {
+	message: string;
+	actions?: NotificationAction[];
+}
+
+export class UINotification {
+	static DURATION = 10000;
+	public static get store() {
+		return notifications;
+	}
+
 	_id: string;
 	type: NotificationType;
-	content: string | Fragment;
-	duration: number = 3000;
+	content: NotificationContent;
+	duration: number = UINotification.DURATION;
 	dismissable: boolean = true;
 	redirectTarget?: string;
 	_timeout?: ReturnType<typeof setInterval>;
 
 	constructor(
 		type: NotificationType,
-		content: string | Fragment,
+		content: NotificationContent | string,
+		duration: number = UINotification.DURATION,
 		redirectTarget?: string,
-		duration = 3000,
 		dismissable = true
 	) {
 		this._id = crypto.randomUUID();
 		this.type = type;
-		this.content = content;
+		this.content = typeof content === 'string' ? { message: content } : content;
+		this.duration = duration === undefined ? UINotification.DURATION : duration;
 		this.redirectTarget = redirectTarget;
-		this.duration = duration;
 		this.dismissable = dismissable;
 	}
 
@@ -36,42 +51,46 @@ export class Notification {
 		return this._id;
 	}
 
-	schedule(store: ReturnType<typeof createNotifications>, duration?: undefined) {
-		this.duration = duration ? duration : this.duration;
+	show() {
+		UINotification.store.show(this);
+	}
+	dismiss() {
+		UINotification.store.dismiss(this);
+	}
+
+	scheduleHide(duration?: number) {
+		duration = duration ?? this.duration;
 		clearInterval(this._timeout);
+		if (!duration) return;
 		this._timeout = setInterval(() => {
-			store.dismiss(this);
-		});
+			UINotification.store.dismiss(this);
+		}, duration);
 	}
 }
 
-class ScheduledNotification extends Notification {}
-
 function createNotifications() {
-	const { subscribe, set, update } = writable<Notification[]>(<Notification[]>[]);
+	const { subscribe, set, update } = writable<UINotification[]>(<UINotification[]>[]);
 
 	return {
 		subscribe,
 		clear: () => set([]),
-		dismiss: (notification: Notification | string) =>
+		dismiss: (notification: UINotification) =>
 			update((current) => {
-				return current.reduce((acc, notif) => {
-					if (
-						(notification instanceof Notification && notification === notif) ||
-						notification == notif.id
-					) {
+				return current.filter((notif) => {
+					if (notification === notif) {
 						clearInterval(notif._timeout);
-					} else {
-						acc.push(notif);
+						return false;
 					}
-					return acc;
-				}, <Notification[]>[]);
+					return true;
+				});
 			}),
-		create: (notification: Notification) =>
+		show: (notification: UINotification) =>
 			update((current) => {
-				notification.schedule(this);
 				current.push(notification);
+				notification.scheduleHide();
 				return current;
 			})
 	};
 }
+
+export const notifications = createNotifications();
