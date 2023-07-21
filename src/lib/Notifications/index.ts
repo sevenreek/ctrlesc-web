@@ -93,4 +93,28 @@ function createNotifications() {
 	};
 }
 
+function instantNotification(type: NotificationType, message: string, redirectTarget?: string) {
+	const notification = new UINotification(
+		type,
+		message,
+		UINotification.DURATION,
+		redirectTarget,
+		true
+	);
+	notification.show();
+}
+
+export const success = (message: string, redirectTarget?: string) => {
+	instantNotification(NotificationType.SUCCESS, message, redirectTarget);
+};
+export const info = (message: string, redirectTarget?: string) => {
+	instantNotification(NotificationType.INFO, message, redirectTarget);
+};
+export const warn = (message: string, redirectTarget?: string) => {
+	instantNotification(NotificationType.WARN, message, redirectTarget);
+};
+export const error = (message: string, redirectTarget?: string) => {
+	instantNotification(NotificationType.ERROR, message, redirectTarget);
+};
+
 export const notifications = createNotifications();
