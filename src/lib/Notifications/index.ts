@@ -20,8 +20,8 @@ export interface NotificationContent {
 
 export class UINotification {
 	static DURATION = 10000;
-	public static get store() {
-		return notifications;
+	public static get toasts() {
+		return toasts;
 	}
 
 	_id: string;
@@ -30,7 +30,6 @@ export class UINotification {
 	duration: number = UINotification.DURATION;
 	dismissable: boolean = true;
 	redirectTarget?: string;
-	_timeout?: ReturnType<typeof setInterval>;
 
 	constructor(
 		type: NotificationType,
@@ -51,46 +50,66 @@ export class UINotification {
 		return this._id;
 	}
 
-	show() {
-		UINotification.store.show(this);
-	}
-	dismiss() {
-		UINotification.store.dismiss(this);
+	showToast() {
+		UINotification.toasts.show(this);
 	}
 
-	scheduleHide(duration?: number) {
-		duration = duration ?? this.duration;
-		clearInterval(this._timeout);
-		if (!duration) return;
-		this._timeout = setInterval(() => {
-			UINotification.store.dismiss(this);
-		}, duration);
+	dismissToast() {
+		UINotification.toasts.dismiss(this.id);
 	}
 }
 
-function createNotifications() {
-	const { subscribe, set, update } = writable<UINotification[]>(<UINotification[]>[]);
+class ToastedNotification {
+	notification: UINotification;
+	_timeout: ReturnType<typeof setTimeout>;
 
-	return {
+	constructor(notifiaction: UINotification, duration: number) {
+		this.notification = notifiaction;
+		this._timeout = setTimeout(() => {
+			UINotification.toasts.dismiss(this.notification.id);
+		}, duration);
+	}
+
+	clearTimeout() {
+		clearTimeout(this._timeout);
+	}
+}
+
+function createToasts(limitToasts: number) {
+	const { subscribe, set, update } = writable<UINotification[]>(<UINotification[]>[]);
+	const timeouts: ReturnType<typeof setTimeout>[] = [];
+
+	const toastStore = {
 		subscribe,
-		clear: () => set([]),
-		dismiss: (notification: UINotification) =>
+		clear: () => {
+			set([]);
+			timeouts.forEach(clearInterval);
+			timeouts.length = 0;
+		},
+		dismiss: (id: string) =>
 			update((current) => {
-				return current.filter((notif) => {
-					if (notification === notif) {
-						clearInterval(notif._timeout);
-						return false;
-					}
-					return true;
-				});
+				const index = current.findIndex((n) => n.id === id);
+				clearTimeout(timeouts[index]);
+				timeouts.splice(index, 1);
+				current.splice(index, 1);
+				return current;
 			}),
 		show: (notification: UINotification) =>
 			update((current) => {
+				if (current.length == limitToasts) {
+					current.shift();
+					clearTimeout(timeouts.shift());
+				}
 				current.push(notification);
-				notification.scheduleHide();
+				timeouts.push(
+					setTimeout(() => {
+						toastStore.dismiss(notification.id);
+					}, notification.duration)
+				);
 				return current;
 			})
 	};
+	return toastStore;
 }
 
 function instantNotification(type: NotificationType, message: string, redirectTarget?: string) {
@@ -101,7 +120,7 @@ function instantNotification(type: NotificationType, message: string, redirectTa
 		redirectTarget,
 		true
 	);
-	notification.show();
+	notification.showToast();
 }
 
 export const success = (message: string, redirectTarget?: string) => {
@@ -117,4 +136,4 @@ export const error = (message: string, redirectTarget?: string) => {
 	instantNotification(NotificationType.ERROR, message, redirectTarget);
 };
 
-export const notifications = createNotifications();
+export const toasts = createToasts(5);

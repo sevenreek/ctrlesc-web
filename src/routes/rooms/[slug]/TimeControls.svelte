@@ -4,21 +4,12 @@
 	import { RoomState } from '$lib/Room';
 	import { formatDuration, getElapsedSeconds } from '$lib/timeutil';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import { success } from '$lib/Notifications';
 
 	export let room: RoomDetails;
 
-	const {
-		slug,
-		state,
-		baseTime,
-		extraTime,
-		startedOn,
-		pausedOn,
-		stoppedOn,
-		name,
-		stages,
-		activeStage: activeStageIndex
-	} = room;
+	const { slug, state, baseTime, name, stages, activeStage: activeStageIndex } = room;
+	let { extraTime, startedOn, stoppedOn } = room;
 	const activeStage = stages[activeStageIndex];
 
 	let icon = '';
@@ -75,14 +66,30 @@
 			}
 		}, 1000);
 	}
+
+	const debounce = (duration: number, callback: () => void) => {};
 </script>
 
 <div class="flex flex-col sm:flex-row gap-4">
 	<div class="flex flex-row sm:flex-col justify-center gap-2">
-		<button type="button" class="btn btn-sm variant-filled-success">
+		<button
+			type="button"
+			class="btn btn-sm variant-filled-success"
+			on:click={() => {
+				success(`Added 5 minutes of additional time in room ${name}.`);
+				extraTime += 5 * 60;
+			}}
+		>
 			<span>+5 min</span>
 		</button>
-		<button type="button" class="btn btn-sm variant-filled-error">
+		<button
+			type="button"
+			class="btn btn-sm variant-filled-error"
+			on:click={() => {
+				success(`Subtracted 5 minutes of time in room ${name}.`);
+				extraTime -= 5 * 60;
+			}}
+		>
 			<span>-5 min</span>
 		</button>
 	</div>

@@ -60,7 +60,7 @@
 			<button
 				type="button"
 				class="flex flex-col justify-center bg-initial"
-				on:click={() => notification.dismiss()}
+				on:click={() => notification.dismissToast()}
 			>
 				<iconify-icon icon="mingcute:close-fill" />
 			</button>

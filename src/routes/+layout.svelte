@@ -11,7 +11,7 @@
 	import { fly } from 'svelte/transition';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
 	import Toast from '$lib/Notifications/Toast.svelte';
-	import { NotificationType, UINotification, notifications } from '$lib/Notifications';
+	import { toasts } from '$lib/Notifications';
 
 	function drawerOpen(): void {
 		drawerStore.open({});
@@ -58,7 +58,7 @@
 	<!-- Page Route Content -->
 	<slot />
 	<aside class="fixed right-4 bottom-4 flex flex-col gap-2 w-96">
-		{#each $notifications as notification (notification.id)}
+		{#each $toasts as notification (notification.id)}
 			<div in:fly={{ duration: 200 }} out:fly={{ duration: 200 }}>
 				<Toast {notification} />
 			</div>
