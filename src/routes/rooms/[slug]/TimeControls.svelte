@@ -1,16 +1,15 @@
 <script lang="ts">
-	import type { RoomDetails } from '$lib/Room';
+	import type { RoomDetail } from '$lib/Room';
 	import 'iconify-icon';
-	import { RoomState } from '$lib/Room';
-	import { formatDuration, getElapsedSeconds } from '$lib/timeutil';
+	import { formatDuration, getElapsedSeconds } from '$lib/timeUtil';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import { success } from '$lib/Notifications';
+	import { success } from '$lib/notifications';
+	import { getRoomMaxCompletion } from '$lib/api/roomUtil';
 
-	export let room: RoomDetails;
+	export let room: RoomDetail;
 
-	const { slug, state, baseTime, name, stages, activeStage: activeStageIndex } = room;
+	const { slug, state, baseTime, name, stages, activeStage: activeStageIndex, completion } = room;
 	let { extraTime, startedOn, stoppedOn } = room;
-	const activeStage = stages[activeStageIndex];
 
 	let icon = '';
 	let interval: ReturnType<typeof setInterval>;
@@ -21,6 +20,8 @@
 	let remainingTime = 0;
 	let remainingTimeString = '';
 	let timeMeterColor = 'stroke-surface-900 dark:stroke-surface-50';
+	const maxCompletion = getRoomMaxCompletion(room);
+	let completionFraction = completion ? completion / maxCompletion : 0;
 	$: {
 		totalTime = extraTime + baseTime;
 		elapsedTime = getElapsedSeconds(startedOn);
@@ -39,23 +40,23 @@
 			timeMeterColor = 'stroke-warning-600';
 		}
 		switch (state) {
-			case RoomState.READY:
+			case 'ready':
 				icon = 'mingcute:door-fill';
 				elapsedTimeString = 'Ready';
 				break;
-			case RoomState.ACTIVE:
+			case 'active':
 				icon = 'mingcute:play-fill';
 				break;
-			case RoomState.PAUSED:
+			case 'paused':
 				icon = 'mingcute:pause-fill';
 				break;
-			case RoomState.FINISHED:
+			case 'finished':
 				icon = 'mingcute:flag-4-fill';
 				elapsedTimeString = 'Done';
 				remainingTimeString = '';
 				elapsedTimeProgressBarValue = totalTime;
 				break;
-			case RoomState.STOPPED:
+			case 'stopped':
 				icon = 'mingcute:stop-fill';
 				break;
 		}
@@ -65,6 +66,7 @@
 				elapsedTime = getElapsedSeconds(startedOn);
 			}
 		}, 1000);
+		completionFraction = completion ? completion / maxCompletion : 0;
 	}
 
 	const debounce = (duration: number, callback: () => void) => {};
@@ -101,12 +103,23 @@
 			width="w-20 md:w-40"
 			meter={timeMeterColor}
 		/>
-		<iconify-icon class="text-3xl md:text-4xl col-span-full row-span-full" {icon} />
+		<ProgressRadial
+			class="col-span-full row-span-full"
+			label="Completion"
+			value={completionFraction * 100}
+			width="w-16 md:w-32"
+		/>
+		<div class="relative w-full col-span-full row-span-full text-center">
+			<iconify-icon class="text-2xl md:text-4xl" {icon} />
+			<span class="block w-full absolute text-xs -mt-2 md:mt-4 md:text-sm">
+				{Math.round(completionFraction * 100)}%
+			</span>
+		</div>
 	</div>
 	<div class="grid grid-cols-2 content-center gap-x-8 gap-y-4">
 		<div>
 			<div class="text-2xl">{elapsedTimeString}</div>
-			<div class="uppercase text-2xs font-bold">Elapsed</div>
+			<div class="uppercase text-2xs font-bold">{elapsedTime ? 'Elapsed' : 'State'}</div>
 		</div>
 		<div>
 			<div class="text-2xl">{formatDuration(remainingTime)}</div>

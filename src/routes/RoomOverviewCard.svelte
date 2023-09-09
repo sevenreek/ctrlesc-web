@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { RoomState } from '$lib/Room';
-	import type { RoomDisplay } from '$lib/Room';
+	import type { RoomOverview } from '$lib/Room';
 	import 'iconify-icon';
 	import LabelledProgressBar from '$lib/LabelledProgressBar.svelte';
-	import { getElapsedSeconds, formatDuration } from '$lib/timeutil';
+	import { getElapsedSeconds, formatDuration } from '$lib/timeUtil';
 
-	export let room: RoomDisplay;
+	export let room: RoomOverview;
 
 	let interval: ReturnType<typeof setInterval>;
 	let icon = '';
@@ -28,6 +27,7 @@
 		slug,
 		stage
 	} = room;
+	let stageString = stage;
 
 	$: {
 		totalTime = extraTime + baseTime;
@@ -46,29 +46,32 @@
 			timeMeterColor = 'bg-warning-600';
 		}
 		switch (state) {
-			case RoomState.READY:
+			case 'ready':
 				icon = 'mingcute:door-fill';
-				stateMessage = 'READY';
-				elapsedTimeString = 'Ready';
+				stateMessage = 'Ready';
+				elapsedTimeString = '';
+				stageString = 'Ready';
+				elapsedTimeProgressBarValue = 0;
 				break;
-			case RoomState.ACTIVE:
+			case 'active':
 				icon = 'mingcute:play-fill';
-				stateMessage = 'ONGOING';
+				stateMessage = 'Ongoing';
 				break;
-			case RoomState.PAUSED:
+			case 'paused':
 				icon = 'mingcute:pause-fill';
-				stateMessage = 'PAUSED';
+				stateMessage = 'Paused';
 				break;
-			case RoomState.FINISHED:
+			case 'finished':
 				icon = 'mingcute:flag-4-fill';
-				stateMessage = 'DONE';
-				elapsedTimeString = 'Done';
+				stateMessage = 'Done';
+				elapsedTimeString = '';
 				remainingTimeString = '';
 				elapsedTimeProgressBarValue = totalTime;
+				stageString = 'Done';
 				break;
-			case RoomState.STOPPED:
+			case 'stopped':
 				icon = 'mingcute:stop-fill';
-				stateMessage = 'STOPPED';
+				stateMessage = 'Stopped';
 				break;
 		}
 		clearInterval(interval);
@@ -92,7 +95,7 @@
 					{name}
 				</h3>
 				<div class="text-xs opacity-60">
-					<span>{stage ?? '-'}</span>
+					<span>{stageString}</span>
 				</div>
 			</div>
 		</a>
@@ -117,7 +120,7 @@
 				meter="bg-secondary-600"
 			>
 				<span class="text-sm" slot="left">
-					{`${Math.floor((completion / maxCompletion) * 100)}%`}
+					{completion ? `${Math.floor((completion / maxCompletion) * 100)}%` : '0%'}
 				</span>
 			</LabelledProgressBar>
 		</div>

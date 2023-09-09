@@ -16,7 +16,7 @@
 		stages,
 		activeStage: activeStageIndex
 	} = data.room;
-	const activeStage = stages[activeStageIndex];
+	const activeStage = activeStageIndex ? stages[activeStageIndex] : null;
 </script>
 
 <div class="container h-full mx-auto p-4">

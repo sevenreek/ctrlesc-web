@@ -10,8 +10,8 @@
 
 	import { fly } from 'svelte/transition';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
-	import Toast from '$lib/Notifications/Toast.svelte';
-	import { toasts } from '$lib/Notifications';
+	import Toast from '$lib/notifications/Toast.svelte';
+	import { toasts } from '$lib/notifications';
 
 	function drawerOpen(): void {
 		drawerStore.open({});
