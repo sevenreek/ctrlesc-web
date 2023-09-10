@@ -1,9 +1,26 @@
 /*place global styles here */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
 html,
 body {
 	@apply h-full overflow-hidden;
 }
 
-sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
-sup { top: -0.3em; vertical-align: super;}
-sub { bottom: -0.25em; vertical-align: sub;}
+sub,
+sup {
+	font-size: 75%;
+	line-height: 0;
+	position: relative;
+	vertical-align: baseline;
+}
+sup {
+	top: -0.3em;
+	vertical-align: super;
+}
+sub {
+	bottom: -0.25em;
+	vertical-align: sub;
+}
