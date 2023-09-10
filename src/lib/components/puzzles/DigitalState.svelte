@@ -3,10 +3,12 @@
 	import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
 	import type { TableSource } from '@skeletonlabs/skeleton';
 	import type { DigitalStateComponent, ComponentState } from '$lib/component';
-	export let name: string;
+	import type { Puzzle } from '$lib/room';
+	export let puzzle: Puzzle;
 	export let component: DigitalStateComponent;
 	export let state: ComponentState;
 
+	const { name, completed } = puzzle;
 	const { completeOverrideEnabled, stateMap, nameMap } = component;
 
 	const stateToDisplay = Object.entries(state ?? {}).map(([key, value]) => {

@@ -1,22 +1,22 @@
 <script lang="ts">
 	import 'iconify-icon';
-	import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
-	import type { TableSource } from '@skeletonlabs/skeleton';
-	import type { DigitalStateComponent, ComponentState } from '$lib/component';
-	export let name: string;
-	export let component: DigitalStateComponent;
+	import { SlideToggle } from '@skeletonlabs/skeleton';
+	import type { UnaryDigitalStateComponent, ComponentState } from '$lib/component';
+	import type { Puzzle } from '$lib/room';
+	export let puzzle: Puzzle;
+	export let component: UnaryDigitalStateComponent;
 	export let state: ComponentState;
+
+	const { name, completed } = puzzle;
 
 	const { completeOverrideEnabled, stateMap, nameMap } = component;
 
 	const stateToDisplay = Object.entries(state ?? {}).map(([key, value]) => {
 		return { part: nameMap ? nameMap[key] : key, state: stateMap[value] };
 	});
-
-	const tableSource: TableSource = {
-		head: ['Part', 'State'],
-		body: tableMapperValues(stateToDisplay, ['part', 'state'])
-	};
 </script>
 
-<Table source={tableSource} />
+<div class="card p-4 flex flex-row justify-between items-center max-w-xs">
+	<h2 class="text-lg">{name}</h2>
+	<SlideToggle name="slider-label" disabled />
+</div>
