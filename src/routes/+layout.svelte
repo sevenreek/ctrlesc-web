@@ -9,7 +9,7 @@
 	import { Drawer, drawerStore } from '@skeletonlabs/skeleton';
 
 	import { fly } from 'svelte/transition';
-	import Navigation from '$lib/Navigation/Navigation.svelte';
+	import Navigation from '$lib/components/Navigation/Navigation.svelte';
 	import Toast from '$lib/notifications/Toast.svelte';
 	import { toasts } from '$lib/notifications';
 

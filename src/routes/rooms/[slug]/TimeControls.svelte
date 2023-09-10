@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { RoomDetail } from '$lib/Room';
+	import type { RoomDetail } from '$lib/room';
 	import 'iconify-icon';
 	import { formatDuration, getElapsedSeconds } from '$lib/timeUtil';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';

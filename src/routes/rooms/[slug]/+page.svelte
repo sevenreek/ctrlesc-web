@@ -3,6 +3,7 @@
 	import { Stepper, Step } from '@skeletonlabs/skeleton';
 	import 'iconify-icon';
 	import TimeControls from './TimeControls.svelte';
+	import Puzzle from '$lib/components/puzzles/Puzzle.svelte';
 	export let data: PageData;
 	const {
 		state,
@@ -28,6 +29,9 @@
 				<Step>
 					<h2 slot="header" class="text-xl">{stage.name}</h2>
 					<span class="italic text-sm">{stage.description}</span>
+					{#each stage.puzzles as puzzle}
+						<Puzzle {puzzle} />
+					{/each}
 				</Step>
 			{/each}
 		</Stepper>

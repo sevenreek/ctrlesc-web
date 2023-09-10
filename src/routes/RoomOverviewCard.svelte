@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { RoomOverview } from '$lib/Room';
+	import type { RoomOverview } from '$lib/room';
 	import 'iconify-icon';
-	import LabelledProgressBar from '$lib/LabelledProgressBar.svelte';
+	import LabelledProgressBar from '$lib/components/LabelledProgressBar.svelte';
 	import { getElapsedSeconds, formatDuration } from '$lib/timeUtil';
 
 	export let room: RoomOverview;

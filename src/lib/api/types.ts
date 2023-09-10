@@ -13,6 +13,10 @@ export interface paths {
     /** Details */
     get: operations["details_rooms__slug__get"];
   };
+  "/rooms/components/supported": {
+    /** Get Supported Component Types */
+    get: operations["get_supported_component_types_rooms_components_supported_get"];
+  };
   "/": {
     /** Index */
     get: operations["index__get"];
@@ -23,6 +27,24 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    /** DigitalStateComponent */
+    DigitalStateComponent: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "digitalState";
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -32,10 +54,6 @@ export interface components {
     Puzzle: {
       /** Slug */
       slug: string;
-      /** Name */
-      name: string;
-      /** Completionworth */
-      completionWorth: number;
       /**
        * Completed
        * @default false
@@ -43,8 +61,12 @@ export interface components {
       completed?: boolean;
       /** State */
       state?: Record<string, never> | null;
+      /** Name */
+      name: string;
+      /** Completionworth */
+      completionWorth: number;
       /** Component */
-      component: Record<string, never>;
+      component: components["schemas"]["UnaryDigitalStateComponent"] | components["schemas"]["DigitalStateComponent"] | components["schemas"]["SequenceComponent"] | components["schemas"]["SpeechDetectionComponent"];
     };
     /** RoomDetail */
     RoomDetail: {
@@ -106,6 +128,46 @@ export interface components {
       /** Maxcompletion */
       maxCompletion: number;
     };
+    /** SequenceComponent */
+    SequenceComponent: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "sequence";
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+      /** Length */
+      length: number;
+    };
+    /** SpeechDetectionComponent */
+    SpeechDetectionComponent: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "speechDetection";
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+      /** Words */
+      words: string[];
+    };
     /** Stage */
     Stage: {
       /** Slug */
@@ -122,6 +184,29 @@ export interface components {
      * @enum {string}
      */
     TimerState: "ready" | "active" | "paused" | "finished" | "stopped";
+    /**
+     * UIComponentType
+     * @enum {string}
+     */
+    UIComponentType: "unaryDigitalState" | "digitalState" | "sequence" | "speechDetection";
+    /** UnaryDigitalStateComponent */
+    UnaryDigitalStateComponent: {
+      /**
+       * Type
+       * @constant
+       */
+      type: "unaryDigitalState";
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+    };
     /** ValidationError */
     ValidationError: {
       /** Location */
@@ -174,6 +259,17 @@ export interface operations {
       422: {
         content: {
           "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Get Supported Component Types */
+  get_supported_component_types_rooms_components_supported_get: {
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UIComponentType"][];
         };
       };
     };
