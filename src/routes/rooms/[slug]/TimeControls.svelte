@@ -11,7 +11,9 @@
 	const { slug, state, baseTime, name, stages, activeStage: activeStageIndex, completion } = room;
 	let { extraTime, startedOn, stoppedOn } = room;
 
-	let icon = '';
+	let primaryIcon = '';
+	let primaryIconHover = '';
+	let secondaryIcon = '';
 	let interval: ReturnType<typeof setInterval>;
 	let elapsedTime: number | undefined = undefined;
 	let elapsedTimeString = '';
@@ -41,23 +43,25 @@
 		}
 		switch (state) {
 			case 'ready':
-				icon = 'mingcute:door-fill';
+				primaryIcon = 'mingcute:door-fill';
+				primaryIconHover = 'mingcute:play-fill';
+				secondaryIcon = 'mingcute:stop-fill';
 				elapsedTimeString = 'Ready';
 				break;
 			case 'active':
-				icon = 'mingcute:play-fill';
+				primaryIcon = 'mingcute:play-fill';
 				break;
 			case 'paused':
-				icon = 'mingcute:pause-fill';
+				primaryIcon = 'mingcute:pause-fill';
 				break;
 			case 'finished':
-				icon = 'mingcute:flag-4-fill';
+				primaryIcon = 'mingcute:flag-4-fill';
 				elapsedTimeString = 'Done';
 				remainingTimeString = '';
 				elapsedTimeProgressBarValue = totalTime;
 				break;
 			case 'stopped':
-				icon = 'mingcute:stop-fill';
+				primaryIcon = 'mingcute:stop-fill';
 				break;
 		}
 		clearInterval(interval);
@@ -72,7 +76,16 @@
 	const debounce = (duration: number, callback: () => void) => {};
 </script>
 
-<div class="flex flex-col sm:flex-row gap-4">
+<div class="flex flex-col sm:flex-row gap-4 items-center">
+	<button
+		type="button"
+		class="btn-icon btn-icon-md variant-filled-secondary"
+		on:click={() => {
+			success(`Secondary action in ${name}.`);
+		}}
+	>
+		<iconify-icon class="text-xl" icon={secondaryIcon} />
+	</button>
 	<div class="flex flex-row sm:flex-col justify-center gap-2">
 		<button
 			type="button"
@@ -100,18 +113,35 @@
 			class="col-span-full row-span-full"
 			label="Time left"
 			value={elapsedTimeProgressBarValue}
-			width="w-20 md:w-40"
+			width="w-28 md:w-40"
 			meter={timeMeterColor}
 		/>
 		<ProgressRadial
 			class="col-span-full row-span-full"
 			label="Completion"
 			value={completionFraction * 100}
-			width="w-16 md:w-32"
+			width="w-24 md:w-32"
 		/>
 		<div class="relative w-full col-span-full row-span-full text-center">
-			<iconify-icon class="text-2xl md:text-4xl" {icon} />
-			<span class="block w-full absolute text-xs -mt-2 md:mt-4 md:text-sm">
+			<button
+				type="button"
+				class="btn-icon relative aspect-square w-20 md:w-24 variant-filled-primary group"
+				on:click={() => {
+					success(`Primary action in ${name}.`);
+				}}
+			>
+				<div>
+					<iconify-icon
+						class="absolute block top-50% left-50% -translate-x-[50%] -translate-y-[50%] ml-auto mr-auto mt-auto text-2xl md:text-4xl transition-all group-hover:opacity-0 duration-300"
+						icon={primaryIcon}
+					/>
+					<iconify-icon
+						class="absolute block top-50% left-50% -translate-x-[50%] -translate-y-[50%] text-2xl md:text-4xl opacity-0 transition-all group-hover:opacity-100 duration-300"
+						icon={primaryIconHover}
+					/>
+				</div>
+			</button>
+			<span class="block w-full absolute text-xs top-8 ml-20 sm:ml-0 sm:mt-16 md:mt-24 md:text-sm">
 				{Math.round(completionFraction * 100)}%
 			</span>
 		</div>
