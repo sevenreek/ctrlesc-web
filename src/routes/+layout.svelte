@@ -8,6 +8,9 @@
 	import Navigation from '$lib/components/Navigation/Navigation.svelte';
 	import Toast from '$lib/notifications/Toast.svelte';
 	import { toasts } from '$lib/notifications';
+	import type { LayoutData } from './$types';
+
+	export let data: LayoutData;
 
 	initializeStores();
 
@@ -21,7 +24,7 @@
 <Drawer>
 	<h2 class="p-4">Navigation</h2>
 	<hr />
-	<Navigation />
+	<Navigation rooms={data.rooms} />
 </Drawer>
 
 <!-- App Shell -->
@@ -53,7 +56,7 @@
 		</AppBar>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<Navigation />
+		<Navigation rooms={data.rooms} />
 	</svelte:fragment>
 	<!-- Page Route Content -->
 	<slot />
