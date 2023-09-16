@@ -66,7 +66,7 @@ export interface components {
       /** Completionworth */
       completionWorth: number;
       /** Component */
-      component: components["schemas"]["UnaryDigitalStateComponent"] | components["schemas"]["DigitalStateComponent"] | components["schemas"]["SequenceComponent"] | components["schemas"]["SpeechDetectionComponent"];
+      component: components["schemas"]["DigitalStateComponent"] | components["schemas"]["SequenceComponent"] | components["schemas"]["SpeechDetectionComponent"];
     };
     /** RoomDetail */
     RoomDetail: {
@@ -188,25 +188,7 @@ export interface components {
      * UIComponentType
      * @enum {string}
      */
-    UIComponentType: "unaryDigitalState" | "digitalState" | "sequence" | "speechDetection";
-    /** UnaryDigitalStateComponent */
-    UnaryDigitalStateComponent: {
-      /**
-       * Type
-       * @constant
-       */
-      type: "unaryDigitalState";
-      /** Completeoverrideenabled */
-      completeOverrideEnabled: boolean;
-      /** Statemap */
-      stateMap: {
-        [key: string]: string;
-      };
-      /** Namemap */
-      nameMap?: {
-        [key: string]: string;
-      } | null;
-    };
+    UIComponentType: "digitalState" | "sequence" | "speechDetection";
     /** ValidationError */
     ValidationError: {
       /** Location */

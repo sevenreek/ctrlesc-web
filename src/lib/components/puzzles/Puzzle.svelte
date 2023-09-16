@@ -3,7 +3,6 @@
 	import type { Puzzle } from '$lib/room';
 	import type { UIComponentType } from '$lib/component';
 	import DigitalState from './DigitalState.svelte';
-	import UnaryDigitalState from './UnaryDigitalState.svelte';
 	export let puzzle: Puzzle;
 	const { component, state, name, completed } = puzzle;
 	const skipEnabled = component.completeOverrideEnabled;
@@ -27,9 +26,7 @@
 			? 'blur-sm hover:blur-none'
 			: ''}"
 	>
-		{#if component.type === 'unaryDigitalState'}
-			<UnaryDigitalState {component} {state} {puzzle} />
-		{:else if component.type === 'digitalState'}
+		{#if component.type === 'digitalState'}
 			<DigitalState {component} {state} {puzzle} />
 		{:else if component.type === 'sequence'}
 			Sequence
