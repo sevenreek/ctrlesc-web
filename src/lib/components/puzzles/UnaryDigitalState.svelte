@@ -17,6 +17,5 @@
 </script>
 
 <div class="card p-4 flex flex-row justify-between items-center max-w-xs">
-	<h2 class="text-lg">{name}</h2>
 	<SlideToggle name="slider-label" disabled />
 </div>
