@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import type { RoomOverview } from '$lib/Room';
+import type { RoomOverview } from '$lib/room';
 
 export const load: PageLoad = async ({ fetch }) => {
 	const response = await fetch('/api/rooms/');
