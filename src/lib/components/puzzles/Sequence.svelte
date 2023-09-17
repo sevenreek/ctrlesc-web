@@ -13,7 +13,8 @@
 		if (typeof element === 'number') {
 			return stateMap[element.toString()];
 		} else if (typeof element === 'string') {
-			return stateMap[element];
+			const mapped = stateMap[element];
+			return mapped === undefined ? element : mapped;
 		}
 		return '?';
 	}
