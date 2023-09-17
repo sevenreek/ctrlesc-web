@@ -147,6 +147,8 @@ export interface components {
       } | null;
       /** Length */
       length: number;
+      /** Targetsequence */
+      targetSequence: unknown[];
     };
     /** SpeechDetectionComponent */
     SpeechDetectionComponent: {

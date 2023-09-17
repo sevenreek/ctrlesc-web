@@ -1,10 +1,10 @@
 <script lang="ts">
 	import 'iconify-icon';
 	import type { Puzzle } from '$lib/room';
-	import type { UIComponentType } from '$lib/component';
 	import DigitalState from './DigitalState.svelte';
+	import Sequence from './Sequence.svelte';
 	export let puzzle: Puzzle;
-	const { component, state, name, completed } = puzzle;
+	const { component, name, completed } = puzzle;
 	const skipEnabled = component.completeOverrideEnabled;
 </script>
 
@@ -27,9 +27,9 @@
 			: ''}"
 	>
 		{#if component.type === 'digitalState'}
-			<DigitalState {component} {state} {puzzle} />
+			<DigitalState {puzzle} />
 		{:else if component.type === 'sequence'}
-			Sequence
+			<Sequence {puzzle} />
 		{:else if component.type === 'speechDetection'}
 			SpeechDetection
 		{/if}

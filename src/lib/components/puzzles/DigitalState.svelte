@@ -5,11 +5,8 @@
 	import type { DigitalStateComponent, ComponentState } from '$lib/component';
 	import type { Puzzle } from '$lib/room';
 	export let puzzle: Puzzle;
-	export let component: DigitalStateComponent;
-	export let state: ComponentState;
-
-	const { name, completed } = puzzle;
-	const { completeOverrideEnabled, stateMap, nameMap } = component;
+	const { component, state } = puzzle;
+	const { stateMap, nameMap } = component;
 
 	const stateToDisplay = Object.entries(state ?? {}).map(([key, value]) => {
 		return { part: nameMap ? nameMap[key] : key, state: stateMap[value] };
