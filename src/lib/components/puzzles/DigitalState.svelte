@@ -5,14 +5,14 @@
 	import type { DigitalStateComponent, ComponentState } from '$lib/component';
 	import type { Puzzle } from '$lib/room';
 	export let puzzle: Puzzle;
-	const { component, state } = puzzle;
-	const { stateMap, nameMap } = component;
+	$: ({ component, state } = puzzle);
+	$: ({ stateMap, nameMap } = component);
 
-	const stateToDisplay = Object.entries(state ?? {}).map(([key, value]) => {
+	$: stateToDisplay = Object.entries(state ?? {}).map(([key, value]) => {
 		return { part: nameMap ? nameMap[key] : key, state: stateMap[value] };
 	});
 
-	const tableSource: TableSource = {
+	$: tableSource = {
 		head: [],
 		body: tableMapperValues(stateToDisplay, ['part', 'state'])
 	};
