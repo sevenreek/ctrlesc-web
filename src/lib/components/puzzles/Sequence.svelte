@@ -3,11 +3,10 @@
 	import type { SequenceComponent } from '$lib/component';
 	import type { Puzzle } from '$lib/room';
 	export let puzzle: Puzzle;
-	const { state } = puzzle;
-	const component = puzzle.component as SequenceComponent;
-	const { stateMap } = component;
-	const sequence = (state ? state['sequence'] : []) as any[];
-	const targetSequence = component.targetSequence;
+	$: ({ state, component } = puzzle);
+	$: sequence = (state ? state['sequence'] : []) as any[];
+	$: targetSequence = (component as SequenceComponent).targetSequence;
+	$: stateMap = (component as SequenceComponent).stateMap;
 
 	function formatElement(element: any) {
 		if (typeof element === 'number') {

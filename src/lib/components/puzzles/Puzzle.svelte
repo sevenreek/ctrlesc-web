@@ -4,8 +4,8 @@
 	import DigitalState from './DigitalState.svelte';
 	import Sequence from './Sequence.svelte';
 	export let puzzle: Puzzle;
-	const { component, name, completed } = puzzle;
-	const skipEnabled = component.completeOverrideEnabled;
+	$: ({ component, name, completed } = puzzle);
+	$: skipEnabled = component.completeOverrideEnabled;
 </script>
 
 <section class="card flex flex-col h-96 max-w-xl variant-soft">
