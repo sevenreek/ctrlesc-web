@@ -1,8 +1,10 @@
 import type { components } from './api/types';
 
-export type RoomDetail = components['schemas']['RoomDetail'];
-export type RoomOverview = components['schemas']['RoomOverview'];
-export type Puzzle = components['schemas']['Puzzle'];
+export type Room = components['schemas']['Room'];
+export type DigitalStatePuzzle = components['schemas']['DigitalStatePuzzle'];
+export type SequencePuzzle = components['schemas']['SequencePuzzle'];
+export type SpeechDetectionPuzzle = components['schemas']['SpeechDetectionPuzzle'];
+export type AnyPuzzle = DigitalStatePuzzle | SequencePuzzle | SpeechDetectionPuzzle;
 export type Stage = components['schemas']['Stage'];
 export type TimerState = components['schemas']['TimerState'];
 type UpdateData = { state?: any; completed?: boolean };

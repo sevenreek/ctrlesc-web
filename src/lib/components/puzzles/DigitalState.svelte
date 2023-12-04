@@ -2,11 +2,9 @@
 	import 'iconify-icon';
 	import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
 	import type { TableSource } from '@skeletonlabs/skeleton';
-	import type { DigitalStateComponent, ComponentState } from '$lib/component';
-	import type { Puzzle } from '$lib/room';
-	export let puzzle: Puzzle;
-	$: ({ component, state } = puzzle);
-	$: ({ stateMap, nameMap } = component);
+	import type { AnyPuzzle } from '$lib/room';
+	export let puzzle: AnyPuzzle;
+	$: ({ stateMap, nameMap, state } = puzzle);
 
 	$: stateToDisplay = Object.entries(state ?? {}).map(([key, value]) => {
 		return { part: nameMap ? nameMap[key] : key, state: stateMap[value] };

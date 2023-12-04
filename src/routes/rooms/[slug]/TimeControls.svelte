@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { RoomDetail } from '$lib/room';
+	import type { Room } from '$lib/room';
 	import 'iconify-icon';
 	import { formatDuration, getElapsedSeconds } from '$lib/timeUtil';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import { success } from '$lib/notifications';
 	import { getRoomMaxCompletion } from '$lib/api/roomUtil';
 
-	export let room: RoomDetail;
+	export let room: Room;
 
 	const { slug, state, baseTime, name, stages, activeStage: activeStageIndex, completion } = room;
 	let { extraTime, startedOn, stoppedOn } = room;

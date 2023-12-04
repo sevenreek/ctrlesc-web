@@ -1,6 +1,6 @@
-import type { RoomDetail } from '$lib/room';
+import type { Room } from '$lib/room';
 
-export function getRoomMaxCompletion(room: RoomDetail) {
+export function getRoomMaxCompletion(room: Room) {
 	return room.stages.reduce((stageAcc, stage) => {
 		return (
 			stageAcc +

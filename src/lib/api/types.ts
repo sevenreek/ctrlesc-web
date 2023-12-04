@@ -9,13 +9,17 @@ export interface paths {
     /** Index */
     get: operations["index_rooms__get"];
   };
+  "/rooms/sse": {
+    /** Sse */
+    get: operations["sse_rooms_sse_get"];
+  };
   "/rooms/{slug}": {
     /** Details */
     get: operations["details_rooms__slug__get"];
   };
-  "/rooms/components/supported": {
-    /** Get Supported Component Types */
-    get: operations["get_supported_component_types_rooms_components_supported_get"];
+  "/rooms/puzzle/supported": {
+    /** Get Supported Puzzles */
+    get: operations["get_supported_puzzles_rooms_puzzle_supported_get"];
   };
   "/": {
     /** Index */
@@ -27,31 +31,8 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
-    /** DigitalStateComponent */
-    DigitalStateComponent: {
-      /**
-       * Type
-       * @constant
-       */
-      type: "digitalState";
-      /** Completeoverrideenabled */
-      completeOverrideEnabled: boolean;
-      /** Statemap */
-      stateMap: {
-        [key: string]: string;
-      };
-      /** Namemap */
-      nameMap?: {
-        [key: string]: string;
-      } | null;
-    };
-    /** HTTPValidationError */
-    HTTPValidationError: {
-      /** Detail */
-      detail?: components["schemas"]["ValidationError"][];
-    };
-    /** Puzzle */
-    Puzzle: {
+    /** DigitalStatePuzzle */
+    DigitalStatePuzzle: {
       /** Slug */
       slug: string;
       /**
@@ -59,82 +40,86 @@ export interface components {
        * @default false
        */
       completed?: boolean;
+      /**
+       * Type
+       * @constant
+       */
+      type: "digitalState";
       /** State */
-      state?: Record<string, never> | null;
+      state: {
+        [key: string]: boolean;
+      };
       /** Name */
       name: string;
       /** Completionworth */
       completionWorth: number;
-      /** Component */
-      component: components["schemas"]["DigitalStateComponent"] | components["schemas"]["SequenceComponent"] | components["schemas"]["SpeechDetectionComponent"];
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+      /** Initialstate */
+      initialState: unknown;
     };
-    /** RoomDetail */
-    RoomDetail: {
+    /** HTTPValidationError */
+    HTTPValidationError: {
+      /** Detail */
+      detail?: components["schemas"]["ValidationError"][];
+    };
+    /**
+     * PuzzleType
+     * @enum {string}
+     */
+    PuzzleType: "digitalState" | "sequence" | "speechDetection";
+    /** Room */
+    Room: {
       /** Slug */
       slug: string;
-      state: components["schemas"]["TimerState"];
-      /** Extratime */
-      extraTime: number;
-      /** Startedon */
-      startedOn?: string | null;
-      /** Pausedon */
-      pausedOn?: string | null;
-      /** Stoppedon */
-      stoppedOn?: string | null;
-      /** Stage */
-      stage?: string | null;
-      /**
-       * Completion
-       * @default 0
-       */
-      completion?: number;
       /** Activestage */
       activeStage?: number | null;
+      /** @default ready */
+      state?: components["schemas"]["TimerState"];
+      /** Timeelapsedonpause */
+      timeElapsedOnPause?: number | null;
+      /**
+       * Extratime
+       * @default 0
+       */
+      extraTime?: number;
       /** Stages */
       stages: components["schemas"]["Stage"][];
       /** Name */
       name: string;
       /** Imageurl */
-      imageUrl: string;
+      imageUrl: string | null;
       /** Basetime */
       baseTime: number;
     };
-    /** RoomOverview */
-    RoomOverview: {
+    /** SequencePuzzle */
+    SequencePuzzle: {
       /** Slug */
       slug: string;
-      state: components["schemas"]["TimerState"];
-      /** Extratime */
-      extraTime: number;
-      /** Startedon */
-      startedOn?: string | null;
-      /** Pausedon */
-      pausedOn?: string | null;
-      /** Stoppedon */
-      stoppedOn?: string | null;
-      /** Stage */
-      stage?: string | null;
       /**
-       * Completion
-       * @default 0
+       * Completed
+       * @default false
        */
-      completion?: number;
-      /** Name */
-      name: string;
-      /** Imageurl */
-      imageUrl: string;
-      /** Basetime */
-      baseTime: number;
-      /** Maxcompletion */
-      maxCompletion: number;
-    };
-    /** SequenceComponent */
-    SequenceComponent: {
+      completed?: boolean;
       /**
        * Type
        * @constant
        */
       type: "sequence";
+      /** State */
+      state: unknown[];
+      /** Name */
+      name: string;
+      /** Completionworth */
+      completionWorth: number;
       /** Completeoverrideenabled */
       completeOverrideEnabled: boolean;
       /** Statemap */
@@ -145,18 +130,39 @@ export interface components {
       nameMap?: {
         [key: string]: string;
       } | null;
-      /** Length */
-      length: number;
-      /** Targetsequence */
-      targetSequence: unknown[];
+      /** Initialstate */
+      initialState: unknown;
+      /** Targetstate */
+      targetState: unknown[];
     };
-    /** SpeechDetectionComponent */
-    SpeechDetectionComponent: {
+    /** SpeechDetectionAttempt */
+    SpeechDetectionAttempt: {
+      /** Phrase */
+      phrase: string;
+      /** Confidence */
+      confidence: number;
+      /** Matchlevel */
+      matchLevel: number;
+    };
+    /** SpeechDetectionPuzzle */
+    SpeechDetectionPuzzle: {
+      /** Slug */
+      slug: string;
+      /**
+       * Completed
+       * @default false
+       */
+      completed?: boolean;
       /**
        * Type
        * @constant
        */
       type: "speechDetection";
+      state: components["schemas"]["SpeechDetectionPuzzleStateObject"];
+      /** Name */
+      name: string;
+      /** Completionworth */
+      completionWorth: number;
       /** Completeoverrideenabled */
       completeOverrideEnabled: boolean;
       /** Statemap */
@@ -167,30 +173,34 @@ export interface components {
       nameMap?: {
         [key: string]: string;
       } | null;
-      /** Words */
-      words: string[];
+      /** Initialstate */
+      initialState: unknown;
+      /** Phrases */
+      phrases: string[];
+    };
+    /** SpeechDetectionPuzzleStateObject */
+    SpeechDetectionPuzzleStateObject: {
+      /** Currentphrase */
+      currentPhrase: number;
+      /** Lastattempts */
+      lastAttempts: components["schemas"]["SpeechDetectionAttempt"][];
     };
     /** Stage */
     Stage: {
       /** Slug */
       slug: string;
       /** Puzzles */
-      puzzles: components["schemas"]["Puzzle"][];
+      puzzles: (components["schemas"]["DigitalStatePuzzle"] | components["schemas"]["SequencePuzzle"] | components["schemas"]["SpeechDetectionPuzzle"])[];
       /** Name */
       name: string;
       /** Description */
-      description?: string | null;
+      description: string | null;
     };
     /**
      * TimerState
      * @enum {string}
      */
     TimerState: "ready" | "active" | "paused" | "finished" | "stopped";
-    /**
-     * UIComponentType
-     * @enum {string}
-     */
-    UIComponentType: "digitalState" | "sequence" | "speechDetection";
     /** ValidationError */
     ValidationError: {
       /** Location */
@@ -220,7 +230,18 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          "application/json": components["schemas"]["RoomOverview"][];
+          "application/json": components["schemas"]["Room"][];
+        };
+      };
+    };
+  };
+  /** Sse */
+  sse_rooms_sse_get: {
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
         };
       };
     };
@@ -236,7 +257,7 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          "application/json": components["schemas"]["RoomDetail"];
+          "application/json": components["schemas"]["Room"];
         };
       };
       /** @description Validation Error */
@@ -247,13 +268,13 @@ export interface operations {
       };
     };
   };
-  /** Get Supported Component Types */
-  get_supported_component_types_rooms_components_supported_get: {
+  /** Get Supported Puzzles */
+  get_supported_puzzles_rooms_puzzle_supported_get: {
     responses: {
       /** @description Successful Response */
       200: {
         content: {
-          "application/json": components["schemas"]["UIComponentType"][];
+          "application/json": components["schemas"]["PuzzleType"][];
         };
       };
     };

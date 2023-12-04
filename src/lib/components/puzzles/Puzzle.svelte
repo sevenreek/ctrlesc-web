@@ -1,11 +1,10 @@
 <script lang="ts">
 	import 'iconify-icon';
-	import type { Puzzle } from '$lib/room';
+	import type { AnyPuzzle } from '$lib/room';
 	import DigitalState from './DigitalState.svelte';
 	import Sequence from './Sequence.svelte';
-	export let puzzle: Puzzle;
-	$: ({ component, name, completed } = puzzle);
-	$: skipEnabled = component.completeOverrideEnabled;
+	export let puzzle: AnyPuzzle;
+	$: ({ name, type, completed, completeOverrideEnabled } = puzzle);
 </script>
 
 <section class="card flex flex-col h-96 max-w-xl variant-soft">
@@ -16,7 +15,7 @@
 				<iconify-icon icon="mingcute:check-circle-fill" class="mr-2" />
 				<span>Completed</span>
 			</button>
-		{:else if skipEnabled}
+		{:else if completeOverrideEnabled}
 			<button class="btn btn-sm variant-filled-primary">Skip</button>
 		{/if}
 	</div>
@@ -26,11 +25,11 @@
 			? 'blur-sm hover:blur-none'
 			: ''}"
 	>
-		{#if component.type === 'digitalState'}
+		{#if type === 'digitalState'}
 			<DigitalState {puzzle} />
-		{:else if component.type === 'sequence'}
+		{:else if type === 'sequence'}
 			<Sequence {puzzle} />
-		{:else if component.type === 'speechDetection'}
+		{:else if type === 'speechDetection'}
 			SpeechDetection
 		{/if}
 	</div>

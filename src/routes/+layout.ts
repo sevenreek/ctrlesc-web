@@ -1,7 +1,7 @@
+import { fetchRooms } from '$lib/api/rooms';
 import type { LayoutLoad } from './$types';
-import { fetchRoomOverviews } from '$lib/api/roomOverview';
 
 export const load: LayoutLoad = async ({ fetch }) => {
-	const rooms = await fetchRoomOverviews(fetch);
+	const rooms = await fetchRooms(fetch);
 	return { rooms };
 };

@@ -1,12 +1,9 @@
 <script lang="ts">
 	import 'iconify-icon';
-	import type { SequenceComponent } from '$lib/component';
-	import type { Puzzle } from '$lib/room';
-	export let puzzle: Puzzle;
-	$: ({ state, component } = puzzle);
-	$: sequence = (state ? state['sequence'] : []) as any[];
-	$: targetSequence = (component as SequenceComponent).targetSequence;
-	$: stateMap = (component as SequenceComponent).stateMap;
+	import type { AnyPuzzle, SequencePuzzle } from '$lib/room';
+	export let puzzle: AnyPuzzle;
+	$: ({ state, targetState, stateMap } = puzzle as SequencePuzzle);
+	console.log(puzzle);
 
 	function formatElement(element: any) {
 		if (typeof element === 'number') {
@@ -17,9 +14,9 @@
 		}
 		return '?';
 	}
-	const sequenceDisplay = sequence.map((element, i) => {
+	$: sequenceDisplay = state.map((element, i) => {
 		const elementSet = element != null;
-		const matchesTarget = element === targetSequence[i];
+		const matchesTarget = element === targetState[i];
 		let displayValue = '?';
 		let chipVariant = 'variant-ghost';
 		if (elementSet) {
@@ -32,7 +29,6 @@
 		}
 		return { value: displayValue, variant: chipVariant };
 	});
-	console.log(sequenceDisplay);
 </script>
 
 <div class="flex flex-row justify-center items-start gap-2">

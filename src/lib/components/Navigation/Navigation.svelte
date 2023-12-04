@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { RoomOverview } from '$lib/room';
+	import type { Room } from '$lib/room';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 
-	export let rooms: RoomOverview[];
+	export let rooms: Room[];
 
 	const drawerStore = getDrawerStore();
 	function drawerClose(): void {
