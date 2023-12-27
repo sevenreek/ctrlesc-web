@@ -1,20 +1,18 @@
 <script lang="ts">
-	import type { Room } from '$lib/room';
+	import type { Room, TimerState } from '$lib/room';
 	import 'iconify-icon';
 	import { formatDuration, getElapsedSeconds } from '$lib/timeUtil';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import { success } from '$lib/notifications';
-	import { getRoomMaxCompletion } from '$lib/api/roomUtil';
+	import { getCurrentRoomCompletion, getRoomMaxCompletion } from '$lib/api/roomUtil';
+	import { requestAction } from '$lib/api/rooms';
 
 	export let room: Room;
 
-	const { slug, state, baseTime, name, stages, activeStage: activeStageIndex, completion } = room;
-	let { extraTime, startedOn, stoppedOn } = room;
-
 	let primaryIcon = '';
 	let primaryIconHover = '';
-	let secondaryIcon = '';
-	let interval: ReturnType<typeof setInterval>;
+	let secondaryIcon = 'mingcute:stop-fill';
+	let interval: ReturnType<typeof setInterval> | undefined = undefined;
 	let elapsedTime: number | undefined = undefined;
 	let elapsedTimeString = '';
 	let totalTime = 0;
@@ -22,11 +20,16 @@
 	let remainingTime = 0;
 	let remainingTimeString = '';
 	let timeMeterColor = 'stroke-surface-900 dark:stroke-surface-50';
-	const maxCompletion = getRoomMaxCompletion(room);
-	let completionFraction = completion ? completion / maxCompletion : 0;
+	let completionFraction: number = 0;
+	$: ({ slug, state, baseTime, name, timeElapsedOnPause, extraTime, startTimestamp } = room);
 	$: {
+		timeElapsedOnPause ??= 0;
+		extraTime ??= 0;
+		const maxCompletion = getRoomMaxCompletion(room);
+		const completion = getCurrentRoomCompletion(room);
+		let completionFraction = completion / maxCompletion;
 		totalTime = extraTime + baseTime;
-		elapsedTime = getElapsedSeconds(startedOn);
+		elapsedTime = getElapsedSeconds(startTimestamp) ?? 0 + timeElapsedOnPause;
 		elapsedTimeProgressBarValue =
 			elapsedTime === undefined ? undefined : (elapsedTime / totalTime) * 100.0;
 		elapsedTimeString = formatDuration(elapsedTime);
@@ -45,14 +48,15 @@
 			case 'ready':
 				primaryIcon = 'mingcute:door-fill';
 				primaryIconHover = 'mingcute:play-fill';
-				secondaryIcon = 'mingcute:stop-fill';
 				elapsedTimeString = 'Ready';
 				break;
 			case 'active':
 				primaryIcon = 'mingcute:play-fill';
+				primaryIconHover = 'mingcute:pause-fill';
 				break;
 			case 'paused':
 				primaryIcon = 'mingcute:pause-fill';
+				primaryIconHover = 'mingcute:play-fill';
 				break;
 			case 'finished':
 				primaryIcon = 'mingcute:flag-4-fill';
@@ -66,14 +70,37 @@
 		}
 		clearInterval(interval);
 		interval = setInterval(() => {
-			if (startedOn) {
-				elapsedTime = getElapsedSeconds(startedOn);
+			if (startTimestamp) {
+				elapsedTime = getElapsedSeconds(startTimestamp) ?? 0 + (timeElapsedOnPause as number);
 			}
 		}, 1000);
 		completionFraction = completion ? completion / maxCompletion : 0;
 	}
-
-	const debounce = (duration: number, callback: () => void) => {};
+	function getPrimaryAction(currentState?: TimerState) {
+		switch (currentState) {
+			default:
+			case 'ready':
+			case 'paused':
+				return 'start';
+			case 'active':
+				return 'pause';
+			case 'finished':
+			case 'stopped':
+				return 'reset';
+		}
+	}
+	function getSecondaryAction(currentState?: TimerState) {
+		switch (currentState) {
+			default:
+			case 'ready':
+			case 'active':
+			case 'paused':
+				return 'stop';
+			case 'finished':
+			case 'stopped':
+				return 'debug';
+		}
+	}
 </script>
 
 <div class="flex flex-col sm:flex-row gap-4 items-center">
@@ -90,9 +117,10 @@
 		<button
 			type="button"
 			class="btn btn-sm variant-filled-success"
-			on:click={() => {
-				success(`Added 5 minutes of additional time in room ${name}.`);
-				extraTime += 5 * 60;
+			on:click={async () => {
+				const response = await requestAction(fetch, slug, 'add', { minutes: 5 });
+				console.log(response);
+				success(`${name}: ${JSON.stringify(response)}`);
 			}}
 		>
 			<span>+5 min</span>
@@ -100,9 +128,10 @@
 		<button
 			type="button"
 			class="btn btn-sm variant-filled-error"
-			on:click={() => {
-				success(`Subtracted 5 minutes of time in room ${name}.`);
-				extraTime -= 5 * 60;
+			on:click={async () => {
+				const response = await requestAction(fetch, slug, 'add', { minutes: -5 });
+				console.log(response);
+				success(`${name}: ${JSON.stringify(response)}`);
 			}}
 		>
 			<span>-5 min</span>
@@ -126,8 +155,10 @@
 			<button
 				type="button"
 				class="btn-icon relative aspect-square w-20 md:w-24 variant-filled-primary group"
-				on:click={() => {
-					success(`Primary action in ${name}.`);
+				on:click={async () => {
+					const response = await requestAction(fetch, slug, getPrimaryAction(state));
+					console.log(response);
+					success(`${name}: ${response}`);
 				}}
 			>
 				<div>

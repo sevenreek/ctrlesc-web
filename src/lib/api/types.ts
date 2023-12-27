@@ -17,6 +17,10 @@ export interface paths {
     /** Details */
     get: operations["details_rooms__slug__get"];
   };
+  "/rooms/{slug}/{action}": {
+    /** Action */
+    post: operations["action_rooms__slug___action__post"];
+  };
   "/rooms/puzzle/supported": {
     /** Get Supported Puzzles */
     get: operations["get_supported_puzzles_rooms_puzzle_supported_get"];
@@ -71,6 +75,13 @@ export interface components {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
+    /** PuzzleSkipRequest */
+    PuzzleSkipRequest: {
+      /** Stage */
+      stage: string;
+      /** Puzzle */
+      puzzle: string;
+    };
     /**
      * PuzzleType
      * @enum {string}
@@ -84,8 +95,13 @@ export interface components {
       activeStage?: number | null;
       /** @default ready */
       state?: components["schemas"]["TimerState"];
-      /** Timeelapsedonpause */
-      timeElapsedOnPause?: number | null;
+      /**
+       * Timeelapsedonpause
+       * @default 0
+       */
+      timeElapsedOnPause?: number;
+      /** Starttimestamp */
+      startTimestamp?: string | null;
       /**
        * Extratime
        * @default 0
@@ -258,6 +274,34 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["Room"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Action */
+  action_rooms__slug___action__post: {
+    parameters: {
+      path: {
+        slug: string;
+        action: "start" | "stop" | "pause" | "add" | "skip";
+      };
+    };
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["PuzzleSkipRequest"] | null;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */

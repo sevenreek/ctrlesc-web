@@ -1,3 +1,4 @@
+import type { SSEUpdate } from './api/sse';
 import type { components } from './api/types';
 
 export type Room = components['schemas']['Room'];
@@ -8,6 +9,21 @@ export type AnyPuzzle = DigitalStatePuzzle | SequencePuzzle | SpeechDetectionPuz
 export type Stage = components['schemas']['Stage'];
 export type TimerState = components['schemas']['TimerState'];
 type UpdateData = { state?: any; completed?: boolean };
+
+export function updateRoom(room: Room, data: SSEUpdate) {
+	let stage, puzzle;
+	if (!('stage' in data)) {
+		room = { ...room, ...data.update };
+		return room;
+	}
+	stage = room.stages.find((s) => s.slug === data.stage);
+	if (!stage) throw Error(`${data.stage} not found in room ${room.slug}.`);
+	if (!('puzzle' in data)) throw Error(`Stage updates not supported.`);
+	const puzzleIndex = stage.puzzles.findIndex((p) => p.slug === data.puzzle);
+	puzzle = stage.puzzles[puzzleIndex];
+	stage.puzzles[puzzleIndex] = { ...puzzle, ...data.update };
+	return room;
+}
 
 export function updateRoomStage(
 	stages: Stage[],

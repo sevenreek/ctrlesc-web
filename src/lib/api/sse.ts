@@ -1,13 +1,26 @@
+import type { TimerState } from '$lib/room';
+
 let sse: EventSource | undefined = undefined;
 
-type BaseSSEUpdate = {
+type BaseRoomSSEUpdate = {
 	room: string;
+};
+type BasePuzzleSSEUpdate = BaseRoomSSEUpdate & {
 	stage: string;
 	puzzle: string;
 };
-export type StateSSEUpdate = BaseSSEUpdate & { state: any };
-export type CompletionSSEUpdate = BaseSSEUpdate & { completed: boolean };
-export type SSEUpdate = StateSSEUpdate | CompletionSSEUpdate;
+export type RoomStateSSEUpdate = BaseRoomSSEUpdate & {
+	update: {
+		state?: TimerState;
+		activeStage?: number | null;
+		timeElapsedOnPause: number;
+		startTimestamp: string | null;
+		extraTime: number;
+	};
+};
+export type PuzzleStateSSEUpdate = BasePuzzleSSEUpdate & { update: { state: any } };
+export type PuzzleCompletionSSEUpdate = BasePuzzleSSEUpdate & { update: { completed: boolean } };
+export type SSEUpdate = PuzzleStateSSEUpdate | PuzzleCompletionSSEUpdate | RoomStateSSEUpdate;
 
 export type SSEListener = (data: SSEUpdate) => void;
 type EventType = MessageEvent<string>;

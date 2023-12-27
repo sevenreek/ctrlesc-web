@@ -6,29 +6,22 @@
 	import 'iconify-icon';
 	import TimeControls from './TimeControls.svelte';
 	import Puzzle from '$lib/components/puzzles/Puzzle.svelte';
-	import { updateRoomStage } from '$lib/room';
+	import { updateRoom, type Room } from '$lib/room';
 	export let data: PageData;
+
 	let room = data.room;
-	let {
-		state,
-		baseTime,
-		extraTime,
-		startedOn,
-		pausedOn,
-		stoppedOn,
-		activeStage: activeStageIndex
-	} = room;
-	let stages = room.stages;
+	$: room = room;
+	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex } = room);
+	$: activeStage = activeStageIndex ? stages[activeStageIndex] : null;
+
 	const { name, imageUrl } = room;
-	const activeStage = activeStageIndex ? stages[activeStageIndex] : null;
 	let tabSet: number = 0;
 
 	onMount(() => {
 		const handler = sse.addListener((data: sse.SSEUpdate) => {
-			console.log(data, data['stage'], data['puzzle']);
-			stages = updateRoomStage(stages, data, data['stage'], data['puzzle']);
-			stages = [...stages];
-			console.log(stages);
+			const newRoom = updateRoom(room, data);
+			console.log(room, data, newRoom);
+			room = newRoom;
 		});
 		return () => {
 			sse.removeListener(handler);
@@ -55,7 +48,7 @@
 		<svelte:fragment slot="panel">
 			{#if tabSet === 0}
 				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
-					<TimeControls room={data.room} />
+					<TimeControls {room} />
 					<Stepper stepTerm="Stage" class="w-full">
 						{#each stages as stage (stage.slug)}
 							<Step>
