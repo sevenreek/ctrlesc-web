@@ -5,9 +5,9 @@
 
 
 export interface paths {
-  "/rooms/": {
+  "/rooms": {
     /** Index */
-    get: operations["index_rooms__get"];
+    get: operations["index_rooms_get"];
   };
   "/rooms/sse": {
     /** Sse */
@@ -17,9 +17,9 @@ export interface paths {
     /** Details */
     get: operations["details_rooms__slug__get"];
   };
-  "/rooms/{slug}/{action}": {
-    /** Action */
-    post: operations["action_rooms__slug___action__post"];
+  "/rooms/{slug}/request": {
+    /** Request */
+    post: operations["request_rooms__slug__request_post"];
   };
   "/rooms/puzzle/supported": {
     /** Get Supported Puzzles */
@@ -75,18 +75,21 @@ export interface components {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
-    /** PuzzleSkipRequest */
-    PuzzleSkipRequest: {
-      /** Stage */
-      stage: string;
-      /** Puzzle */
-      puzzle: string;
-    };
     /**
      * PuzzleType
      * @enum {string}
      */
     PuzzleType: "digitalState" | "sequence" | "speechDetection";
+    /** RequestResult */
+    RequestResult: {
+      /**
+       * Success
+       * @default true
+       */
+      success?: boolean;
+      /** Error */
+      error?: string | null;
+    };
     /** Room */
     Room: {
       /** Slug */
@@ -151,6 +154,18 @@ export interface components {
       /** Targetstate */
       targetState: unknown[];
     };
+    /** SkipPuzzleRequest */
+    SkipPuzzleRequest: {
+      /**
+       * Action
+       * @constant
+       */
+      action: "skip";
+      /** Stage */
+      stage: string;
+      /** Puzzle */
+      puzzle: string;
+    };
     /** SpeechDetectionAttempt */
     SpeechDetectionAttempt: {
       /** Phrase */
@@ -212,11 +227,29 @@ export interface components {
       /** Description */
       description: string | null;
     };
+    /** TimerAddRequest */
+    TimerAddRequest: {
+      /**
+       * Action
+       * @enum {string}
+       */
+      action: "skip" | "start" | "stop" | "pause" | "add";
+      /** Minutes */
+      minutes: number;
+    };
     /**
      * TimerState
      * @enum {string}
      */
     TimerState: "ready" | "active" | "paused" | "finished" | "stopped";
+    /** TimerStateRequest */
+    TimerStateRequest: {
+      /**
+       * Action
+       * @enum {string}
+       */
+      action: "skip" | "start" | "stop" | "pause" | "add";
+    };
     /** ValidationError */
     ValidationError: {
       /** Location */
@@ -241,7 +274,7 @@ export type external = Record<string, never>;
 export interface operations {
 
   /** Index */
-  index_rooms__get: {
+  index_rooms_get: {
     responses: {
       /** @description Successful Response */
       200: {
@@ -284,24 +317,23 @@ export interface operations {
       };
     };
   };
-  /** Action */
-  action_rooms__slug___action__post: {
+  /** Request */
+  request_rooms__slug__request_post: {
     parameters: {
       path: {
         slug: string;
-        action: "start" | "stop" | "pause" | "add" | "skip";
       };
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        "application/json": components["schemas"]["PuzzleSkipRequest"] | null;
+        "application/json": components["schemas"]["SkipPuzzleRequest"] | components["schemas"]["TimerAddRequest"] | components["schemas"]["TimerStateRequest"];
       };
     };
     responses: {
       /** @description Successful Response */
       200: {
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["RequestResult"];
         };
       };
       /** @description Validation Error */

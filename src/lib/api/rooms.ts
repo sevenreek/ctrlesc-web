@@ -1,4 +1,7 @@
 import type { Room } from '$lib/room';
+import type { components } from '$lib/api/types';
+
+export type RequestResult = components['schemas']['RequestResult'];
 
 export async function fetchRooms(_fetch = fetch) {
 	const response = await _fetch('/api/rooms');
@@ -6,7 +9,7 @@ export async function fetchRooms(_fetch = fetch) {
 	return data;
 }
 
-type RoomAction = 'start' | 'stop' | 'pause' | 'add' | 'skip' | 'reset';
+export type RoomAction = 'start' | 'stop' | 'pause' | 'add' | 'skip' | 'reset';
 export async function requestAction(
 	_fetch = fetch,
 	room: string,
@@ -22,5 +25,5 @@ export async function requestAction(
 		body: JSON.stringify(requestData ? { action, ...requestData } : { action })
 	});
 	response = await response.json();
-	return response;
+	return response as RequestResult;
 }

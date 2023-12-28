@@ -3,15 +3,71 @@
 	import 'iconify-icon';
 	import { formatDuration, getElapsedSeconds } from '$lib/timeUtil';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import { success } from '$lib/notifications';
+	import { error, success } from '$lib/notifications';
 	import { getCurrentRoomCompletion, getRoomMaxCompletion } from '$lib/api/roomUtil';
-	import { requestAction } from '$lib/api/rooms';
+	import { requestAction, type RoomAction } from '$lib/api/rooms';
 
 	export let room: Room;
 
-	let primaryIcon = '';
-	let primaryIconHover = '';
-	let secondaryIcon = 'mingcute:stop-fill';
+	const ROOM_STATE_MAPPING = {
+		ready: {
+			primaryIcon: 'mingcute:door-fill',
+			primaryIconHover: 'mingcute:play-fill',
+			secondaryIcon: '',
+			primaryAction: 'start' as RoomAction,
+			primaryActionSuccess: 'started.',
+			primaryActionFailed: 'failed to start.',
+			secondaryAction: 'stop' as RoomAction,
+			secondaryActionSuccess: 'stopped.',
+			secondaryActionFailed: 'failed to stop.'
+		},
+		active: {
+			primaryIcon: 'mingcute:play-fill',
+			primaryIconHover: 'mingcute:pause-fill',
+			secondaryIcon: 'mingcute:stop-fill',
+			primaryAction: 'pause' as RoomAction,
+			primaryActionSuccess: 'paused.',
+			primaryActionFailed: 'failed to pause.',
+			secondaryAction: 'stop' as RoomAction,
+			secondaryActionSuccess: 'stopped.',
+			secondaryActionFailed: 'failed to stop.'
+		},
+		paused: {
+			primaryIcon: 'mingcute:pause-fill',
+			primaryIconHover: 'mingcute:play-fill',
+			secondaryIcon: 'mingcute:stop-fill',
+			primaryAction: 'start' as RoomAction,
+			primaryActionSuccess: 'resumed.',
+			primaryActionFailed: 'failed to resume.',
+			secondaryAction: 'stop' as RoomAction,
+			secondaryActionSuccess: 'stopped.',
+			secondaryActionFailed: 'failed to stop.'
+		},
+		finished: {
+			primaryIcon: 'mingcute:flag-4-fill',
+			primaryIconHover: 'mingcute:refresh-1-fill',
+			secondaryIcon: 'mingcute:bug-fill',
+			primaryAction: 'reset' as RoomAction,
+			primaryActionSuccess: 'reset.',
+			primaryActionFailed: 'failed to reset.',
+			secondaryAction: 'debug' as RoomAction,
+			secondaryActionSuccess: 'entered debug mode.',
+			secondaryActionFailed: 'failed to start debug mode.'
+		},
+		stopped: {
+			primaryIcon: 'mingcute:stop-fill',
+			primaryIconHover: 'mingcute:refresh-1-fill',
+			secondaryIcon: 'mingcute:bug-fill',
+			primaryAction: 'reset' as RoomAction,
+			primaryActionSuccess: 'reset.',
+			primaryActionFailed: 'failed to reset.',
+			secondaryAction: 'debug' as RoomAction,
+			secondaryActionSuccess: 'entered debug mode.',
+			secondaryActionFailed: 'failed to start debug mode.'
+		}
+	};
+
+	let ACTIONS = ROOM_STATE_MAPPING['ready'];
 	let interval: ReturnType<typeof setInterval> | undefined = undefined;
 	let elapsedTime: number | undefined = undefined;
 	let elapsedTimeString = '';
@@ -22,6 +78,7 @@
 	let timeMeterColor = 'stroke-surface-900 dark:stroke-surface-50';
 	let completionFraction: number = 0;
 	$: ({ slug, state, baseTime, name, timeElapsedOnPause, extraTime, startTimestamp } = room);
+	$: ACTIONS = ROOM_STATE_MAPPING[state as TimerState];
 	$: {
 		timeElapsedOnPause ??= 0;
 		extraTime ??= 0;
@@ -29,7 +86,10 @@
 		const completion = getCurrentRoomCompletion(room);
 		let completionFraction = completion / maxCompletion;
 		totalTime = extraTime + baseTime;
-		elapsedTime = getElapsedSeconds(startTimestamp) ?? 0 + timeElapsedOnPause;
+		elapsedTime =
+			state === 'paused'
+				? timeElapsedOnPause
+				: (getElapsedSeconds(startTimestamp) ?? 0) + timeElapsedOnPause;
 		elapsedTimeProgressBarValue =
 			elapsedTime === undefined ? undefined : (elapsedTime / totalTime) * 100.0;
 		elapsedTimeString = formatDuration(elapsedTime);
@@ -44,30 +104,6 @@
 		} else if (elapsedTime > baseTime) {
 			timeMeterColor = 'stroke-warning-600';
 		}
-		switch (state) {
-			case 'ready':
-				primaryIcon = 'mingcute:door-fill';
-				primaryIconHover = 'mingcute:play-fill';
-				elapsedTimeString = 'Ready';
-				break;
-			case 'active':
-				primaryIcon = 'mingcute:play-fill';
-				primaryIconHover = 'mingcute:pause-fill';
-				break;
-			case 'paused':
-				primaryIcon = 'mingcute:pause-fill';
-				primaryIconHover = 'mingcute:play-fill';
-				break;
-			case 'finished':
-				primaryIcon = 'mingcute:flag-4-fill';
-				elapsedTimeString = 'Done';
-				remainingTimeString = '';
-				elapsedTimeProgressBarValue = totalTime;
-				break;
-			case 'stopped':
-				primaryIcon = 'mingcute:stop-fill';
-				break;
-		}
 		clearInterval(interval);
 		interval = setInterval(() => {
 			if (startTimestamp) {
@@ -76,51 +112,36 @@
 		}, 1000);
 		completionFraction = completion ? completion / maxCompletion : 0;
 	}
-	function getPrimaryAction(currentState?: TimerState) {
-		switch (currentState) {
-			default:
-			case 'ready':
-			case 'paused':
-				return 'start';
-			case 'active':
-				return 'pause';
-			case 'finished':
-			case 'stopped':
-				return 'reset';
-		}
-	}
-	function getSecondaryAction(currentState?: TimerState) {
-		switch (currentState) {
-			default:
-			case 'ready':
-			case 'active':
-			case 'paused':
-				return 'stop';
-			case 'finished':
-			case 'stopped':
-				return 'debug';
-		}
-	}
 </script>
 
 <div class="flex flex-col sm:flex-row gap-4 items-center">
-	<button
-		type="button"
-		class="btn-icon btn-icon-md variant-filled-secondary"
-		on:click={() => {
-			success(`Secondary action in ${name}.`);
-		}}
-	>
-		<iconify-icon class="text-xl" icon={secondaryIcon} />
-	</button>
+	{#if ACTIONS.secondaryIcon}
+		<button
+			type="button"
+			class="btn-icon btn-icon-md variant-filled-secondary"
+			on:click={async () => {
+				const response = await requestAction(fetch, slug, ACTIONS.secondaryAction);
+				if (response.success) {
+					success(`${name}: ${ACTIONS.secondaryActionSuccess}`);
+				} else {
+					error(`${name}: ${ACTIONS.secondaryActionFailed}`);
+				}
+			}}
+		>
+			<iconify-icon class="text-xl" icon={ACTIONS.secondaryIcon} />
+		</button>
+	{/if}
 	<div class="flex flex-row sm:flex-col justify-center gap-2">
 		<button
 			type="button"
 			class="btn btn-sm variant-filled-success"
 			on:click={async () => {
 				const response = await requestAction(fetch, slug, 'add', { minutes: 5 });
-				console.log(response);
-				success(`${name}: ${JSON.stringify(response)}`);
+				if (response.success) {
+					success(`${name}: Added 5 minutes of extra time.`);
+				} else {
+					error(`${name}: Failed to add 5 minutes of extra time. ${response.error}`);
+				}
 			}}
 		>
 			<span>+5 min</span>
@@ -130,8 +151,11 @@
 			class="btn btn-sm variant-filled-error"
 			on:click={async () => {
 				const response = await requestAction(fetch, slug, 'add', { minutes: -5 });
-				console.log(response);
-				success(`${name}: ${JSON.stringify(response)}`);
+				if (response.success) {
+					success(`${name}: Subtracted 5 minutes of extra time.`);
+				} else {
+					error(`${name}: Failed to subtract 5 minutes of extra time. ${response.error}`);
+				}
 			}}
 		>
 			<span>-5 min</span>
@@ -156,19 +180,22 @@
 				type="button"
 				class="btn-icon relative aspect-square w-20 md:w-24 variant-filled-primary group"
 				on:click={async () => {
-					const response = await requestAction(fetch, slug, getPrimaryAction(state));
-					console.log(response);
-					success(`${name}: ${response}`);
+					const response = await requestAction(fetch, slug, ACTIONS.primaryAction);
+					if (response.success) {
+						success(`${name}: ${ACTIONS.primaryActionSuccess}`);
+					} else {
+						error(`${name}: ${ACTIONS.primaryActionFailed}`);
+					}
 				}}
 			>
 				<div>
 					<iconify-icon
 						class="absolute block top-50% left-50% -translate-x-[50%] -translate-y-[50%] ml-auto mr-auto mt-auto text-2xl md:text-4xl transition-all group-hover:opacity-0 duration-300"
-						icon={primaryIcon}
+						icon={ACTIONS.primaryIcon}
 					/>
 					<iconify-icon
 						class="absolute block top-50% left-50% -translate-x-[50%] -translate-y-[50%] text-2xl md:text-4xl opacity-0 transition-all group-hover:opacity-100 duration-300"
-						icon={primaryIconHover}
+						icon={ACTIONS.primaryIconHover}
 					/>
 				</div>
 			</button>
