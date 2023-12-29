@@ -120,11 +120,13 @@
 			type="button"
 			class="btn-icon btn-icon-md variant-filled-secondary"
 			on:click={async () => {
+				const successMessage = ACTIONS.secondaryActionSuccess;
+				const errorMessage = ACTIONS.secondaryActionFailed;
 				const response = await requestAction(fetch, slug, ACTIONS.secondaryAction);
 				if (response.success) {
-					success(`${name}: ${ACTIONS.secondaryActionSuccess}`);
+					success(`${name}: ${successMessage}`);
 				} else {
-					error(`${name}: ${ACTIONS.secondaryActionFailed}`);
+					error(`${name}: ${errorMessage}`);
 				}
 			}}
 		>
@@ -180,11 +182,13 @@
 				type="button"
 				class="btn-icon relative aspect-square w-20 md:w-24 variant-filled-primary group"
 				on:click={async () => {
+					const successMessage = ACTIONS.primaryActionSuccess;
+					const errorMessage = ACTIONS.primaryActionFailed;
 					const response = await requestAction(fetch, slug, ACTIONS.primaryAction);
 					if (response.success) {
-						success(`${name}: ${ACTIONS.primaryActionSuccess}`);
+						success(`${name}: ${successMessage}`);
 					} else {
-						error(`${name}: ${ACTIONS.primaryActionFailed}`);
+						error(`${name}: ${errorMessage}`);
 					}
 				}}
 			>
