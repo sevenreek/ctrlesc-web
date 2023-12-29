@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import * as sse from '$lib/api/sse';
 	import type { PageData } from './$types';
 	import { Stepper, Step, TabGroup, Tab } from '@skeletonlabs/skeleton';
@@ -7,10 +7,15 @@
 	import TimeControls from './TimeControls.svelte';
 	import Puzzle from '$lib/components/puzzles/Puzzle.svelte';
 	import { updateRoom, type Room } from '$lib/room';
+	import { ROOM_CONTEXT } from '$lib/api/rooms';
+
 	export let data: PageData;
 
 	let room = data.room;
-	$: room = room;
+	setContext(ROOM_CONTEXT, {
+		slug: room.slug
+	});
+
 	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex } = room);
 	$: activeStage = activeStageIndex ? stages[activeStageIndex] : null;
 
@@ -49,13 +54,14 @@
 			{#if tabSet === 0}
 				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
 					<TimeControls {room} />
-					<Stepper stepTerm="Stage" class="w-full">
+					<span>Stage: </span><span>{activeStageIndex}</span>
+					<Stepper stepTerm="Stage" class="w-full" start={activeStageIndex ?? 0}>
 						{#each stages as stage (stage.slug)}
 							<Step>
 								<h2 slot="header" class="text-xl">{stage.name}</h2>
 								<span class="italic text-sm">{stage.description}</span>
 								{#each stage.puzzles as puzzle (puzzle.slug)}
-									<Puzzle {puzzle} />
+									<Puzzle {puzzle} stageSlug={stage.slug} />
 								{/each}
 							</Step>
 						{/each}

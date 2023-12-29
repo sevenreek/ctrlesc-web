@@ -3,7 +3,14 @@
 	import type { AnyPuzzle } from '$lib/room';
 	import DigitalState from './DigitalState.svelte';
 	import Sequence from './Sequence.svelte';
+	import { getContext } from 'svelte';
+	import { ROOM_CONTEXT, requestAction, type RoomContext } from '$lib/api/rooms';
+	import { error, success } from '$lib/notifications';
 	export let puzzle: AnyPuzzle;
+	export let stageSlug: string;
+
+	let roomContext = getContext(ROOM_CONTEXT) as RoomContext;
+
 	$: ({ name, type, completed, completeOverrideEnabled } = puzzle);
 </script>
 
@@ -16,7 +23,22 @@
 				<span>Completed</span>
 			</button>
 		{:else if completeOverrideEnabled}
-			<button class="btn btn-sm variant-filled-primary">Skip</button>
+			<button
+				class="btn btn-sm variant-filled-primary"
+				on:click={async () => {
+					const response = await requestAction(fetch, roomContext.slug, 'skip', {
+						stage: stageSlug,
+						puzzle: puzzle.slug
+					});
+					if (response.success) {
+						success(`${name}: skipped ${puzzle.name}.`);
+					} else {
+						error(`${name}: failed to skip ${puzzle.name}.`);
+					}
+				}}
+			>
+				Skip
+			</button>
 		{/if}
 	</div>
 	<hr />

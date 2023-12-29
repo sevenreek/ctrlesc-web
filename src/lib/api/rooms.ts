@@ -9,6 +9,8 @@ export async function fetchRooms(_fetch = fetch) {
 	return data;
 }
 
+export const ROOM_CONTEXT = Symbol();
+export type RoomContext = { slug: string };
 export type RoomAction = 'start' | 'stop' | 'pause' | 'add' | 'skip' | 'reset';
 export async function requestAction(
 	_fetch = fetch,
