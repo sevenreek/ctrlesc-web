@@ -7,17 +7,24 @@
 	import TimeControls from './TimeControls.svelte';
 	import Puzzle from '$lib/components/puzzles/Puzzle.svelte';
 	import { updateRoom, type Room } from '$lib/room';
-	import { ROOM_CONTEXT } from '$lib/api/rooms';
+	import { ROOM_CONTEXT, ROOM_STATE_CONTEXT, type RoomConfigContext } from '$lib/api/rooms';
+	import StagePager from '$lib/components/StagePager/StagePager.svelte';
+	import Stage from '$lib/components/StagePager/Stage.svelte';
+	import { writable } from 'svelte/store';
 
 	export let data: PageData;
 
 	let room = data.room;
+	let roomStateContext = writable({ activeStage: 0, state: 'ready' });
+
+	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex } = room);
+	$: roomStateContext.update((prev) => ({ ...prev, activeStage: activeStageIndex ?? 0, state }));
+	$: activeStage = activeStageIndex ? stages[activeStageIndex] : null;
+
 	setContext(ROOM_CONTEXT, {
 		slug: room.slug
 	});
-
-	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex } = room);
-	$: activeStage = activeStageIndex ? stages[activeStageIndex] : null;
+	setContext(ROOM_STATE_CONTEXT, roomStateContext);
 
 	const { name, imageUrl } = room;
 	let tabSet: number = 0;
@@ -54,18 +61,16 @@
 			{#if tabSet === 0}
 				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
 					<TimeControls {room} />
-					<span>Stage: </span><span>{activeStageIndex}</span>
-					<Stepper stepTerm="Stage" class="w-full" start={activeStageIndex ?? 0}>
+					<StagePager class="w-full" activeStage={activeStageIndex ?? 0}>
 						{#each stages as stage (stage.slug)}
-							<Step>
-								<h2 slot="header" class="text-xl">{stage.name}</h2>
+							<Stage>
 								<span class="italic text-sm">{stage.description}</span>
 								{#each stage.puzzles as puzzle (puzzle.slug)}
 									<Puzzle {puzzle} stageSlug={stage.slug} />
 								{/each}
-							</Step>
+							</Stage>
 						{/each}
-					</Stepper>
+					</StagePager>
 				</div>
 			{:else if tabSet === 1}
 				(tab panel 2 contents)
