@@ -49,9 +49,9 @@
 						puzzle: puzzle.slug
 					});
 					if (response.success) {
-						success(`${name}: skipped ${puzzle.name}.`);
+						success(`${roomContext.slug}: skipped ${name}.`);
 					} else {
-						error(`${name}: failed to skip ${puzzle.name}.`);
+						error(`${roomContext.slug}: failed to skip ${name}.`);
 					}
 				}}
 			>

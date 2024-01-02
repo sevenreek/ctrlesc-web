@@ -84,7 +84,7 @@
 		extraTime ??= 0;
 		const maxCompletion = getRoomMaxCompletion(room);
 		const completion = getCurrentRoomCompletion(room);
-		let completionFraction = completion / maxCompletion;
+		completionFraction = completion / maxCompletion;
 		totalTime = extraTime + baseTime;
 		elapsedTime =
 			state === 'paused'
@@ -110,7 +110,6 @@
 				elapsedTime = getElapsedSeconds(startTimestamp) ?? 0 + (timeElapsedOnPause as number);
 			}
 		}, 1000);
-		completionFraction = completion ? completion / maxCompletion : 0;
 	}
 </script>
 
@@ -176,6 +175,7 @@
 			label="Completion"
 			value={completionFraction * 100}
 			width="w-24 md:w-32"
+			meter="stroke-success-500"
 		/>
 		<div class="relative w-full col-span-full row-span-full text-center">
 			<button
