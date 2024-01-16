@@ -21,6 +21,10 @@ export interface paths {
     /** Request */
     post: operations["request_rooms__slug__request_post"];
   };
+  "/rooms/{slug}/games/{game_id}": {
+    /** Game */
+    get: operations["game_rooms__slug__games__game_id__get"];
+  };
   "/rooms/puzzle/supported": {
     /** Get Supported Puzzles */
     get: operations["get_supported_puzzles_rooms_puzzle_supported_get"];
@@ -48,7 +52,7 @@ export interface components {
        * Type
        * @constant
        */
-      type: "digitalState";
+      type: "DIGITAL_STATE";
       /** State */
       state: {
         [key: string]: boolean;
@@ -79,7 +83,7 @@ export interface components {
      * PuzzleType
      * @enum {string}
      */
-    PuzzleType: "digitalState" | "sequence" | "speechDetection";
+    PuzzleType: "DIGITAL_STATE" | "SEQUENCE" | "SPEECH_DETECTION";
     /** RequestResult */
     RequestResult: {
       /**
@@ -95,23 +99,18 @@ export interface components {
       /** Slug */
       slug: string;
       /** Activestage */
-      activeStage?: number | null;
-      /** @default ready */
-      state?: components["schemas"]["TimerState"];
-      /**
-       * Timeelapsedonpause
-       * @default 0
-       */
-      timeElapsedOnPause?: number;
+      activeStage: number | null;
+      state: components["schemas"]["TimerState"];
+      /** Timeelapsedonpause */
+      timeElapsedOnPause: number;
       /** Starttimestamp */
-      startTimestamp?: string | null;
-      /**
-       * Extratime
-       * @default 0
-       */
-      extraTime?: number;
+      startTimestamp: string | null;
+      /** Extratime */
+      extraTime: number;
       /** Stages */
       stages: components["schemas"]["Stage"][];
+      /** Activegameid */
+      activeGameId: string | null;
       /** Name */
       name: string;
       /** Imageurl */
@@ -132,7 +131,7 @@ export interface components {
        * Type
        * @constant
        */
-      type: "sequence";
+      type: "SEQUENCE";
       /** State */
       state: unknown[];
       /** Name */
@@ -151,6 +150,10 @@ export interface components {
       } | null;
       /** Initialstate */
       initialState: unknown;
+      extras: components["schemas"]["SequencePuzzleConfigExtras"];
+    };
+    /** SequencePuzzleConfigExtras */
+    SequencePuzzleConfigExtras: {
       /** Targetstate */
       targetState: unknown[];
     };
@@ -188,7 +191,7 @@ export interface components {
        * Type
        * @constant
        */
-      type: "speechDetection";
+      type: "SPEECH_DETECTION";
       state: components["schemas"]["SpeechDetectionPuzzleStateObject"];
       /** Name */
       name: string;
@@ -206,6 +209,10 @@ export interface components {
       } | null;
       /** Initialstate */
       initialState: unknown;
+      extras: components["schemas"]["SpeechDetectionPuzzleConfigExtras"];
+    };
+    /** SpeechDetectionPuzzleConfigExtras */
+    SpeechDetectionPuzzleConfigExtras: {
       /** Phrases */
       phrases: string[];
     };
@@ -233,7 +240,7 @@ export interface components {
        * Action
        * @enum {string}
        */
-      action: "skip" | "start" | "stop" | "pause" | "add";
+      action: "skip" | "start" | "stop" | "pause" | "add" | "reset";
       /** Minutes */
       minutes: number;
     };
@@ -248,7 +255,7 @@ export interface components {
        * Action
        * @enum {string}
        */
-      action: "skip" | "start" | "stop" | "pause" | "add";
+      action: "skip" | "start" | "stop" | "pause" | "add" | "reset";
     };
     /** ValidationError */
     ValidationError: {
@@ -334,6 +341,29 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["RequestResult"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Game */
+  game_rooms__slug__games__game_id__get: {
+    parameters: {
+      path: {
+        slug: string;
+        game_id: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */

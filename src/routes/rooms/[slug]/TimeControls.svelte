@@ -87,7 +87,7 @@
 		completionFraction = completion / maxCompletion;
 		totalTime = extraTime + baseTime;
 		elapsedTime =
-			state === 'paused'
+			state !== 'active'
 				? timeElapsedOnPause
 				: (getElapsedSeconds(startTimestamp) ?? 0) + timeElapsedOnPause;
 		elapsedTimeProgressBarValue =

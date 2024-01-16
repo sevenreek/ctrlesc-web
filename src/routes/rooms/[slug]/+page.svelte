@@ -17,7 +17,7 @@
 	let room = data.room;
 	let roomStateContext = writable({ activeStage: 0, state: 'ready' });
 
-	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex } = room);
+	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex, activeGameId } = room);
 	$: roomStateContext.update((prev) => ({ ...prev, activeStage: activeStageIndex ?? 0, state }));
 	$: activeStage = activeStageIndex ? stages[activeStageIndex] : null;
 
@@ -42,7 +42,10 @@
 </script>
 
 <div class="container h-full mx-auto px-8 py-6">
-	<h1 class="text-4xl font-bold pb-4 text-center">{name}</h1>
+	<h1 class="text-4xl font-bold pb-1 text-center">{name}</h1>
+	{#if activeGameId}
+		<h2 class="text-xs pb-4 text-center">{activeGameId}</h2>
+	{/if}
 	<TabGroup justify="justify-center">
 		<Tab bind:group={tabSet} name="game" value={0}>
 			<span>Game Control</span>

@@ -2,12 +2,12 @@
 	import 'iconify-icon';
 	import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
 	import type { TableSource } from '@skeletonlabs/skeleton';
-	import type { AnyPuzzle } from '$lib/room';
+	import type { AnyPuzzle, DigitalStatePuzzle } from '$lib/room';
 	export let puzzle: AnyPuzzle;
-	$: ({ stateMap, nameMap, state } = puzzle);
+	$: ({ stateMap, nameMap, state } = puzzle as DigitalStatePuzzle);
 
 	$: stateToDisplay = Object.entries(state ?? {}).map(([key, value]) => {
-		return { part: nameMap ? nameMap[key] : key, state: stateMap[value] };
+		return { part: nameMap ? nameMap[key] : key, state: stateMap[value.toString()] };
 	});
 
 	$: tableSource = {

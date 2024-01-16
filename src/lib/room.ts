@@ -13,7 +13,19 @@ type UpdateData = { state?: any; completed?: boolean };
 export function updateRoom(room: Room, data: SSEUpdate) {
 	let stage, puzzle;
 	if (!('stage' in data)) {
-		room = { ...room, ...data.update };
+		const { stages: stagesUpdateData, ...roomUpdateData } = data.update;
+		room = { ...room, ...roomUpdateData };
+		if (stagesUpdateData?.length === room.stages.length) {
+			for (let stageIndex = 0; stageIndex < room.stages.length; stageIndex += 1) {
+				const stage = room.stages[stageIndex];
+				for (let puzzleIndex = 0; puzzleIndex < stage.puzzles.length; puzzleIndex += 1) {
+					stage.puzzles[puzzleIndex] = {
+						...stage.puzzles[puzzleIndex],
+						...stagesUpdateData[stageIndex].puzzles[puzzleIndex]
+					};
+				}
+			}
+		}
 		return room;
 	}
 	stage = room.stages.find((s) => s.slug === data.stage);

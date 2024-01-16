@@ -66,11 +66,11 @@
 			? 'blur-sm hover:blur-none'
 			: ''}"
 	>
-		{#if type === 'digitalState'}
+		{#if type === 'DIGITAL_STATE'}
 			<DigitalState {puzzle} />
-		{:else if type === 'sequence'}
+		{:else if type === 'SEQUENCE'}
 			<Sequence {puzzle} />
-		{:else if type === 'speechDetection'}
+		{:else if type === 'SPEECH_DETECTION'}
 			SpeechDetection
 		{/if}
 	</div>

@@ -1,4 +1,4 @@
-import type { TimerState } from '$lib/room';
+import type { TimerState, Stage, AnyPuzzle } from '$lib/room';
 
 let sse: EventSource | undefined = undefined;
 
@@ -9,6 +9,10 @@ type BasePuzzleSSEUpdate = BaseRoomSSEUpdate & {
 	stage: string;
 	puzzle: string;
 };
+
+type PuzzleUpdate = Partial<AnyPuzzle>;
+type StageUpdate = Partial<Stage> & { puzzles: PuzzleUpdate[] };
+
 export type RoomStateSSEUpdate = BaseRoomSSEUpdate & {
 	update: {
 		state?: TimerState;
@@ -16,6 +20,7 @@ export type RoomStateSSEUpdate = BaseRoomSSEUpdate & {
 		timeElapsedOnPause: number;
 		startTimestamp: string | null;
 		extraTime: number;
+		stages: StageUpdate[];
 	};
 };
 export type PuzzleStateSSEUpdate = BasePuzzleSSEUpdate & { update: { state: any } };
