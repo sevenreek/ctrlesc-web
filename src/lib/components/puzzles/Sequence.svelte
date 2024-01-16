@@ -2,8 +2,11 @@
 	import 'iconify-icon';
 	import type { AnyPuzzle, SequencePuzzle } from '$lib/room';
 	export let puzzle: AnyPuzzle;
-	$: ({ state, targetState, stateMap } = puzzle as SequencePuzzle);
-	console.log(puzzle);
+	$: ({
+		state,
+		extras: { targetState },
+		stateMap
+	} = puzzle as SequencePuzzle);
 
 	function formatElement(element: any) {
 		if (typeof element === 'number') {
