@@ -11,6 +11,7 @@
 	import StagePager from '$lib/components/StagePager/StagePager.svelte';
 	import Stage from '$lib/components/StagePager/Stage.svelte';
 	import { writable } from 'svelte/store';
+	import GameTimePlot from '$lib/components/GameTimePlot.svelte';
 
 	export let data: PageData;
 
@@ -76,7 +77,9 @@
 					</StagePager>
 				</div>
 			{:else if tabSet === 1}
-				(tab panel 2 contents)
+				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
+					<GameTimePlot />
+				</div>
 			{:else if tabSet === 2}
 				(tab panel 3 contents)
 			{/if}

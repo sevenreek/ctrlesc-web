@@ -42,6 +42,8 @@
 		"@floating-ui/dom": "^1.4.3",
 		"@sveltejs/adapter-auto": "^2.1.0",
 		"@sveltejs/kit": "^1.21.0",
+		"@types/d3": "^7.4.3",
+		"d3": "^7.4.3",
 		"dayjs": "^1.11.9",
 		"iconify-icon": "^1.0.8",
 		"nanoid": "^4.0.2",
