@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { onMount, setContext } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import * as sse from '$lib/api/sse';
 	import type { PageData } from './$types';
 	import { Stepper, Step, TabGroup, Tab } from '@skeletonlabs/skeleton';
@@ -15,7 +17,31 @@
 
 	export let data: PageData;
 
+	type Tabs = 'game' | 'stats' | 'logs' | 'config';
+
+	function getTabIndex(tab?: Tabs) {
+		switch (tab) {
+			default:
+			case 'game':
+				return 0;
+			case 'stats':
+				return 1;
+			case 'logs':
+				return 2;
+			case 'config':
+				return 3;
+		}
+	}
+
+	function changeTab(tab: Tabs) {
+		const split = $page.url.pathname.split('/');
+		if (split.at(-1) === room.slug) split.push(tab);
+		else split[split.length - 1] = tab;
+		goto(split.join('/'));
+	}
+
 	let room = data.room;
+	let tab: Tabs | undefined = data.tab;
 	let roomStateContext = writable({ activeStage: 0, state: 'ready' });
 
 	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex, activeGameId } = room);
@@ -28,7 +54,7 @@
 	setContext(ROOM_STATE_CONTEXT, roomStateContext);
 
 	const { name, imageUrl } = room;
-	let tabSet: number = 0;
+	let tabSet: number = getTabIndex(tab);
 
 	onMount(() => {
 		const handler = sse.addListener((data: sse.SSEUpdate) => {
@@ -48,16 +74,44 @@
 		<h2 class="text-xs pb-4 text-center">{activeGameId}</h2>
 	{/if}
 	<TabGroup justify="justify-center">
-		<Tab bind:group={tabSet} name="game" value={0}>
+		<Tab
+			bind:group={tabSet}
+			name="game"
+			value={0}
+			on:click={() => {
+				changeTab('game');
+			}}
+		>
 			<span>Game Control</span>
 		</Tab>
-		<Tab bind:group={tabSet} name="statistics" value={1}>
+		<Tab
+			on:click={() => {
+				changeTab('stats');
+			}}
+			bind:group={tabSet}
+			name="stats"
+			value={1}
+		>
 			<span>Statistics</span>
 		</Tab>
-		<Tab bind:group={tabSet} name="log" value={2}>
+		<Tab
+			on:click={() => {
+				changeTab('logs');
+			}}
+			bind:group={tabSet}
+			name="logs"
+			value={2}
+		>
 			<span>Logs</span>
 		</Tab>
-		<Tab bind:group={tabSet} name="config" value={3}>
+		<Tab
+			on:click={() => {
+				changeTab('config');
+			}}
+			bind:group={tabSet}
+			name="config"
+			value={3}
+		>
 			<span>Configuration</span>
 		</Tab>
 		<!-- Tab Panels --->
