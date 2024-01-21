@@ -23,21 +23,19 @@
 	let xTickCount = 5;
 	let yTickCount = 5;
 
-	const randomTime = d3.randomInt(1 * 60, 6 * 60);
+	const randomTime = d3.randomInt(1 * 60, 10 * 60);
 	const randomCompletion = d3.randomInt(3, 30);
-	const randomDeltaTime = d3.randomInt(15, 3 * 60);
+	const randomDeltaTime = d3.randomInt(15, 7 * 60);
 	const mockAverage = (min: number, max: number) =>
 		getRandomInt(min + (max - min) / 3, min + (2 * (max - min)) / 3);
 	const zeroIfUndefined = (r?: number) => (r === undefined ? 0 : r);
 
 	const best = d3.range(STAGE_COUNT).map(() => randomTime());
 	const bestCum = Array.from(d3.cumsum(best));
-	const worst = d3.range(STAGE_COUNT).map((i) => bestCum[i] + randomDeltaTime());
+	const worst = d3.range(STAGE_COUNT).map((i) => best[i] + randomDeltaTime());
 	const worstCum = Array.from(d3.cumsum(worst));
-	const averageCum = Array.from(
-		d3.range(STAGE_COUNT).map((i) => mockAverage(bestCum[i], worstCum[i]))
-	);
-	const average: number[] = averageCum.map((val, i) => (i > 0 ? val - averageCum[i - 1] : 0));
+	const average = Array.from(d3.range(STAGE_COUNT).map((i) => mockAverage(best[i], worst[i])));
+	const averageCum = Array.from(d3.cumsum(average));
 	bestCum.unshift(0);
 	worstCum.unshift(0);
 	averageCum.unshift(0);
@@ -67,18 +65,12 @@
 	function onResize() {
 		({ width, height } = svg.getBoundingClientRect());
 	}
-	$: console.log(
-		{ width, height },
-		{ xExtent, yExtent },
-		padding,
-		{ xScale, xTicks, yScale, yTicks },
-		{ completion, best: bestCum, worst: worstCum, average: averageCum }
-	);
+	$: console.log(best, average, worst);
 	$: tooltipData = {
 		stageName: '',
-		best: 0,
-		average: 0,
-		worst: 0,
+		best: null,
+		average: null,
+		worst: null,
 		completion: 0,
 		current: null
 	};
@@ -89,11 +81,17 @@
 
 <div class="w-full h-72">
 	<div class="card p-2 variant-filled-surface absolute opacity-0" id={popupId}>
-		<h4>{tooltipData.stageName}</h4>
-		<div class="grid grid-cols-2 text-xs p-1">
-			<span>Best:</span><span>{formatDuration(tooltipData.best)}</span>
-			<span>Avg:</span><span>{formatDuration(tooltipData.average)}</span>
-			<span>Worst:</span><span>{formatDuration(tooltipData.worst)}</span>
+		<h4 class="font-semibold text-sm">{tooltipData.stageName}</h4>
+		<div class="grid grid-cols-2 text-xs p-1 gap-1">
+			{#if tooltipData.worst}
+				<span>Worst: </span><span>{formatDuration(tooltipData.worst)}</span>
+			{/if}
+			{#if tooltipData.average}
+				<span>Avg: </span><span>{formatDuration(tooltipData.average)}</span>
+			{/if}
+			{#if tooltipData.best}
+				<span>Best: </span><span>{formatDuration(tooltipData.best)}</span>
+			{/if}
 		</div>
 		<div class="arrow variant-filled-secondary" />
 	</div>
@@ -108,37 +106,39 @@
 			/>
 			<g class="stages">
 				{#each completion as tick, index}
-					<!-- stage areas -->
-					{#if index > 0}
-						{@const prevTick = completion[index - 1]}
-						<!-- svelte-ignore a11y-no-static-element-interactions -->
-						<!-- svelte-ignore a11y-mouse-events-have-key-events -->
-						<rect
-							use:svgTooltip={{ target: popupId, placement: 'bottom', offset: 4 }}
-							on:mouseover={() => {
-								tooltipData = {
-									...tooltipData,
-									stageName: room.stages[index - 1].name,
-									best: best[index - 1],
-									worst: worst[index - 1],
-									average: average[index - 1]
-								};
-							}}
-							class="stagearea"
-							x={xScale(prevTick)}
-							y={yScale(yExtent[1])}
-							width={xScale(tick) - xScale(prevTick)}
-							height={yScale.range()[0] - yScale.range()[1]}
+					<g class="stage">
+						<!-- stage areas -->
+						{#if index > 0}
+							{@const prevTick = completion[index - 1]}
+							<!-- svelte-ignore a11y-no-static-element-interactions -->
+							<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+							<rect
+								use:svgTooltip={{ target: popupId, placement: 'bottom', offset: 4 }}
+								on:mouseover={() => {
+									tooltipData = {
+										...tooltipData,
+										stageName: room.stages[index - 1].name,
+										best: best[index - 1],
+										worst: worst[index - 1],
+										average: average[index - 1]
+									};
+								}}
+								class="stagearea"
+								x={xScale(prevTick)}
+								y={yScale(yExtent[1])}
+								width={xScale(tick) - xScale(prevTick)}
+								height={yScale.range()[0] - yScale.range()[1]}
+							/>
+						{/if}
+						<!-- stage lines -->
+						<line
+							class="stageline"
+							x1={xScale(tick)}
+							y1={yScale(yExtent[0])}
+							x2={xScale(tick)}
+							y2={yScale(yExtent[1])}
 						/>
-					{/if}
-					<!-- stage lines -->
-					<line
-						class="stageline"
-						x1={xScale(tick)}
-						y1={yScale(yExtent[0])}
-						x2={xScale(tick)}
-						y2={yScale(yExtent[1])}
-					/>
+					</g>
 				{/each}
 			</g>
 			<!-- horizontal lines -->
@@ -154,7 +154,7 @@
 				{/each}
 			</g>
 			<!-- data -->
-			<g class="best">
+			<g class="series best">
 				{#each bestCum as point, index}
 					{@const currentCompletion = completion[index]}
 					{#if index > 0}
@@ -170,7 +170,7 @@
 					{/if}
 				{/each}
 			</g>
-			<g class="worst">
+			<g class="series worst">
 				{#each worstCum as point, index}
 					{@const currentCompletion = completion[index]}
 					{#if index > 0}
@@ -186,7 +186,7 @@
 					{/if}
 				{/each}
 			</g>
-			<g class="average">
+			<g class="series average">
 				{#each averageCum as point, index}
 					{@const currentCompletion = completion[index]}
 					{#if index > 0}
@@ -207,6 +207,18 @@
 </div>
 
 <style>
+	.series line {
+		stroke-width: 2px;
+	}
+	.best line {
+		stroke: rgba(var(--color-success-500) / 1);
+	}
+	.worst line {
+		stroke: rgba(var(--color-error-700) / 1);
+	}
+	.average line {
+		stroke: rgba(var(--color-warning-600) / 1);
+	}
 	.border {
 		fill: none;
 		stroke: #ddd;
