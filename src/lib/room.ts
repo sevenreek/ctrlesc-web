@@ -2,6 +2,8 @@ import type { SSEUpdate } from './api/sse';
 import type { components } from './api/types';
 
 export type Room = components['schemas']['Room'];
+export type RoomConfig = components['schemas']['RoomConfig'];
+export type StageConfig = components['schemas']['StageConfig'];
 export type DigitalStatePuzzle = components['schemas']['DigitalStatePuzzle'];
 export type SequencePuzzle = components['schemas']['SequencePuzzle'];
 export type SpeechDetectionPuzzle = components['schemas']['SpeechDetectionPuzzle'];

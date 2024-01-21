@@ -17,6 +17,10 @@ export interface paths {
     /** Details */
     get: operations["details_rooms__slug__get"];
   };
+  "/rooms/{slug}/config": {
+    /** Details */
+    get: operations["details_rooms__slug__config_get"];
+  };
   "/rooms/{slug}/request": {
     /** Request */
     post: operations["request_rooms__slug__request_post"];
@@ -74,6 +78,32 @@ export interface components {
       /** Initialstate */
       initialState: unknown;
     };
+    /** DigitalStatePuzzleConfig */
+    DigitalStatePuzzleConfig: {
+      /** Slug */
+      slug: string;
+      /** Name */
+      name: string;
+      /** Completionworth */
+      completionWorth: number;
+      /**
+       * Type
+       * @constant
+       */
+      type: "DIGITAL_STATE";
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+      /** Initialstate */
+      initialState: unknown;
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -118,6 +148,19 @@ export interface components {
       /** Basetime */
       baseTime: number;
     };
+    /** RoomConfig */
+    RoomConfig: {
+      /** Slug */
+      slug: string;
+      /** Name */
+      name: string;
+      /** Stages */
+      stages: components["schemas"]["StageConfig"][];
+      /** Imageurl */
+      imageUrl: string | null;
+      /** Basetime */
+      baseTime: number;
+    };
     /** SequencePuzzle */
     SequencePuzzle: {
       /** Slug */
@@ -138,6 +181,33 @@ export interface components {
       name: string;
       /** Completionworth */
       completionWorth: number;
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+      /** Initialstate */
+      initialState: unknown;
+      extras: components["schemas"]["SequencePuzzleConfigExtras"];
+    };
+    /** SequencePuzzleConfig */
+    SequencePuzzleConfig: {
+      /** Slug */
+      slug: string;
+      /** Name */
+      name: string;
+      /** Completionworth */
+      completionWorth: number;
+      /**
+       * Type
+       * @constant
+       */
+      type: "SEQUENCE";
       /** Completeoverrideenabled */
       completeOverrideEnabled: boolean;
       /** Statemap */
@@ -211,6 +281,33 @@ export interface components {
       initialState: unknown;
       extras: components["schemas"]["SpeechDetectionPuzzleConfigExtras"];
     };
+    /** SpeechDetectionPuzzleConfig */
+    SpeechDetectionPuzzleConfig: {
+      /** Slug */
+      slug: string;
+      /** Name */
+      name: string;
+      /** Completionworth */
+      completionWorth: number;
+      /**
+       * Type
+       * @constant
+       */
+      type: "SPEECH_DETECTION";
+      /** Completeoverrideenabled */
+      completeOverrideEnabled: boolean;
+      /** Statemap */
+      stateMap: {
+        [key: string]: string;
+      };
+      /** Namemap */
+      nameMap?: {
+        [key: string]: string;
+      } | null;
+      /** Initialstate */
+      initialState: unknown;
+      extras: components["schemas"]["SpeechDetectionPuzzleConfigExtras"];
+    };
     /** SpeechDetectionPuzzleConfigExtras */
     SpeechDetectionPuzzleConfigExtras: {
       /** Phrases */
@@ -229,6 +326,17 @@ export interface components {
       slug: string;
       /** Puzzles */
       puzzles: (components["schemas"]["DigitalStatePuzzle"] | components["schemas"]["SequencePuzzle"] | components["schemas"]["SpeechDetectionPuzzle"])[];
+      /** Name */
+      name: string;
+      /** Description */
+      description: string | null;
+    };
+    /** StageConfig */
+    StageConfig: {
+      /** Slug */
+      slug: string;
+      /** Puzzles */
+      puzzles: (components["schemas"]["DigitalStatePuzzleConfig"] | components["schemas"]["SequencePuzzleConfig"] | components["schemas"]["SpeechDetectionPuzzleConfig"])[];
       /** Name */
       name: string;
       /** Description */
@@ -314,6 +422,28 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["Room"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Details */
+  details_rooms__slug__config_get: {
+    parameters: {
+      path: {
+        slug: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["RoomConfig"];
         };
       };
       /** @description Validation Error */

@@ -48,9 +48,7 @@
 	$: roomStateContext.update((prev) => ({ ...prev, activeStage: activeStageIndex ?? 0, state }));
 	$: activeStage = activeStageIndex ? stages[activeStageIndex] : null;
 
-	setContext(ROOM_CONTEXT, {
-		slug: room.slug
-	});
+	setContext(ROOM_CONTEXT, room);
 	setContext(ROOM_STATE_CONTEXT, roomStateContext);
 
 	const { name, imageUrl } = room;

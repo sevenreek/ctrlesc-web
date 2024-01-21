@@ -14,7 +14,6 @@ export const ROOM_CONTEXT = Symbol();
 export const ROOM_STATE_CONTEXT = Symbol();
 export const STAGE_CONTEXT = Symbol();
 export type RoomStateContext = { activeStage: number; state: TimerState };
-export type RoomConfigContext = { slug: string };
 export type StageContext = { index: number };
 export type RoomAction = 'start' | 'stop' | 'pause' | 'add' | 'skip' | 'reset';
 export async function requestAction(
