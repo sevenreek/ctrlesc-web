@@ -9,11 +9,12 @@
 	import TimeControls from './TimeControls.svelte';
 	import Puzzle from '$lib/components/puzzles/Puzzle.svelte';
 	import { updateRoom, type Room } from '$lib/room';
-	import { ROOM_CONTEXT, ROOM_STATE_CONTEXT, type RoomConfigContext } from '$lib/api/rooms';
+	import { ROOM_CONTEXT, ROOM_STATE_CONTEXT } from '$lib/api/rooms';
 	import StagePager from '$lib/components/StagePager/StagePager.svelte';
 	import Stage from '$lib/components/StagePager/Stage.svelte';
 	import { writable } from 'svelte/store';
 	import GameTimePlot from '$lib/components/GameTimePlot.svelte';
+	import DeltaTimePlot from '$lib/components/DeltaTimePlot/DeltaTimePlot.svelte';
 
 	export let data: PageData;
 
@@ -131,6 +132,7 @@
 			{:else if tabSet === 1}
 				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
 					<GameTimePlot />
+					<DeltaTimePlot />
 				</div>
 			{:else if tabSet === 2}
 				(tab panel 3 contents)

@@ -150,7 +150,7 @@
 						x2={xScale(xExtent[1])}
 						y2={yScale(tick)}
 					/>
-					<text x={8} y={yScale(tick) + 6}>{Math.floor(tick / 60)}</text>
+					<text x={0} y={yScale(tick) + 6}>{formatDuration(tick)}</text>
 				{/each}
 			</g>
 			<!-- data -->
