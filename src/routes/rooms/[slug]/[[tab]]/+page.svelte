@@ -131,8 +131,14 @@
 				</div>
 			{:else if tabSet === 1}
 				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
-					<GameTimePlot />
-					<DeltaTimePlot />
+					<DeltaTimePlot
+						stages={room.stages}
+						source={[100, 300, 200, 450, 800, 200, 300]}
+						compare={{
+							best: [80, 200, 100, 150, 300, 50, 180],
+							worst: [200, 600, 700, 1000, 1200, 600, 360]
+						}}
+					/>
 				</div>
 			{:else if tabSet === 2}
 				(tab panel 3 contents)

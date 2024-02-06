@@ -38,3 +38,14 @@ export function getLineSegments(pointA: Point, pointB: Point): LineSegment[] {
 		{ x1: zeroCrossingX, y1: 0, x2: pointB.x, y2: pointB.y, ...getDeltaColors(0, pointB.y) }
 	];
 }
+
+type ScaleType = d3.ScaleLinear<number, number>;
+export function getAreaPoints(lineSegment: LineSegment, xScale: ScaleType, yScale: ScaleType) {
+	const points = [
+		[lineSegment.x1, 0],
+		[lineSegment.x2, 0],
+		[lineSegment.x2, lineSegment.y2],
+		[lineSegment.x1, lineSegment.y1]
+	];
+	return points.map((pnt) => xScale(pnt[0]).toString() + ',' + yScale(pnt[1]).toString()).join(' ');
+}
