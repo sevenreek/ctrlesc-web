@@ -14,11 +14,11 @@
 	import Stage from '$lib/components/StagePager/Stage.svelte';
 	import { writable } from 'svelte/store';
 	import GameTimePlot from '$lib/components/GameTimePlot.svelte';
-	import DeltaTimePlot from '$lib/components/DeltaTimePlot/DeltaTimePlot.svelte';
+	import Statistics from './tabs/Statistics.svelte';
+	import GameControl from './tabs/GameControl.svelte';
+	import type { Tabs } from './tabs/types';
 
 	export let data: PageData;
-
-	type Tabs = 'game' | 'stats' | 'logs' | 'config';
 
 	function getTabIndex(tab?: Tabs) {
 		switch (tab) {
@@ -40,9 +40,8 @@
 		else split[split.length - 1] = tab;
 		goto(split.join('/'));
 	}
+	let { room, tab, compareSegments } = data;
 
-	let room = data.room;
-	let tab: Tabs | undefined = data.tab;
 	let roomStateContext = writable({ activeStage: 0, state: 'ready' });
 
 	$: ({ stages, state, baseTime, extraTime, activeStage: activeStageIndex, activeGameId } = room);
@@ -115,34 +114,15 @@
 		</Tab>
 		<!-- Tab Panels --->
 		<svelte:fragment slot="panel">
-			{#if tabSet === 0}
-				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
-					<TimeControls {room} />
-					<StagePager class="w-full" activeStage={activeStageIndex ?? 0}>
-						{#each stages as stage (stage.slug)}
-							<Stage>
-								<span class="italic text-sm">{stage.description}</span>
-								{#each stage.puzzles as puzzle (puzzle.slug)}
-									<Puzzle {puzzle} stageSlug={stage.slug} />
-								{/each}
-							</Stage>
-						{/each}
-					</StagePager>
-				</div>
-			{:else if tabSet === 1}
-				<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
-					<DeltaTimePlot
-						stages={room.stages}
-						source={[100, 300, 200, 450, 800, 200, 300]}
-						compare={{
-							best: [80, 200, 100, 150, 300, 50, 180],
-							worst: [200, 600, 700, 1000, 1200, 600, 360]
-						}}
-					/>
-				</div>
-			{:else if tabSet === 2}
-				(tab panel 3 contents)
-			{/if}
+			<div class="flex pt-6 flex-col gap-10 justify-center items-center w-full">
+				{#if tabSet === 0}
+					<GameControl {room} />
+				{:else if tabSet === 1}
+					<Statistics {room} {compareSegments} sourceSegments={[1, 2, 3, 4]} />
+				{:else if tabSet === 2}
+					(tab panel 3 contents)
+				{/if}
+			</div>
 		</svelte:fragment>
 	</TabGroup>
 </div>
