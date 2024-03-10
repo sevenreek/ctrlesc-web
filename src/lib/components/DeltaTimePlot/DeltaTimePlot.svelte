@@ -24,12 +24,12 @@
 	let svg: SVGElement;
 	let width = 0;
 	let height = 0;
-	let elapsedTime = 0;
 	let elapsedCompletion = 0;
 	let xTickCount = 5;
 	let yTickCount = 5;
 	let padding = { left: 50, right: 10, top: 10, bottom: 40 };
 	let compareDataChoice = Object.keys(compare)[0];
+	let hoverStageIndex = 0;
 
 	function onResize() {
 		({ width, height } = svg.getBoundingClientRect());
@@ -63,10 +63,11 @@
 		.scaleLinear()
 		.domain(yExtent)
 		.range([height - padding.bottom, padding.top]);
+
 	$: tooltipData = {
-		stageName: '',
-		delta: 0,
-		deltaCum: 0
+		stageName: stages[hoverStageIndex - 1]?.name,
+		delta: deltaData[hoverStageIndex],
+		deltaCum: deltaCum[hoverStageIndex]
 	};
 	$: lineSegments = deltaCum.flatMap((currentY, i) => {
 		if (i == 0) return [];
@@ -161,12 +162,7 @@
 							<rect
 								use:svgTooltip={{ target: stagePopupId, placement: 'bottom', offset: 4 }}
 								on:mouseover={() => {
-									tooltipData = {
-										...tooltipData,
-										stageName: stages[index - 1].name,
-										delta: deltaData[index],
-										deltaCum: deltaCum[index]
-									};
+									hoverStageIndex = index;
 								}}
 								x={xScale(prevTick)}
 								y={yScale(yExtent[1])}

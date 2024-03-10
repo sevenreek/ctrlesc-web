@@ -21,6 +21,10 @@ export interface paths {
     /** Details */
     get: operations["details_rooms__slug__config_get"];
   };
+  "/rooms/{slug}/segments": {
+    /** Details */
+    get: operations["details_rooms__slug__segments_get"];
+  };
   "/rooms/{slug}/request": {
     /** Request */
     post: operations["request_rooms__slug__request_post"];
@@ -104,6 +108,28 @@ export interface components {
       /** Initialstate */
       initialState: unknown;
     };
+    /** Game */
+    Game: {
+      /** Id */
+      id: string;
+      /**
+       * Startedon
+       * Format: date-time
+       */
+      startedOn: string;
+      /** Endedon */
+      endedOn: string | null;
+      /** Duration */
+      duration: number | null;
+      result: components["schemas"]["GameResult"];
+      /** Stagecompletions */
+      stageCompletions: components["schemas"]["StageCompletion"][];
+    };
+    /**
+     * GameResult
+     * @enum {string}
+     */
+    GameResult: "UNRESOLVED" | "TIMEDOUT" | "COMPLETED" | "STOPPED";
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -124,10 +150,23 @@ export interface components {
       /** Error */
       error?: string | null;
     };
-    /** Room */
+    /**
+     * Room
+     * @description Room with game_id string.
+     */
     Room: {
+      /** Activegameid */
+      activeGameId: string | null;
+      /** Stages */
+      stages: components["schemas"]["Stage"][];
       /** Slug */
       slug: string;
+      /** Name */
+      name: string;
+      /** Imageurl */
+      imageUrl: string | null;
+      /** Basetime */
+      baseTime: number;
       /** Activestage */
       activeStage: number | null;
       state: components["schemas"]["TimerState"];
@@ -137,10 +176,13 @@ export interface components {
       startTimestamp: string | null;
       /** Extratime */
       extraTime: number;
+    };
+    /** RoomConfig */
+    RoomConfig: {
       /** Stages */
-      stages: components["schemas"]["Stage"][];
-      /** Activegameid */
-      activeGameId: string | null;
+      stages: components["schemas"]["StageConfig"][];
+      /** Slug */
+      slug: string;
       /** Name */
       name: string;
       /** Imageurl */
@@ -148,18 +190,32 @@ export interface components {
       /** Basetime */
       baseTime: number;
     };
-    /** RoomConfig */
-    RoomConfig: {
+    /**
+     * RoomGame
+     * @description Room that skips game_id in favor of
+     * the actual Game object.
+     */
+    RoomGame: {
+      game: components["schemas"]["Game"] | null;
+      /** Stages */
+      stages: components["schemas"]["Stage"][];
       /** Slug */
       slug: string;
       /** Name */
       name: string;
-      /** Stages */
-      stages: components["schemas"]["StageConfig"][];
       /** Imageurl */
       imageUrl: string | null;
       /** Basetime */
       baseTime: number;
+      /** Activestage */
+      activeStage: number | null;
+      state: components["schemas"]["TimerState"];
+      /** Timeelapsedonpause */
+      timeElapsedOnPause: number;
+      /** Starttimestamp */
+      startTimestamp: string | null;
+      /** Extratime */
+      extraTime: number;
     };
     /** SequencePuzzle */
     SequencePuzzle: {
@@ -331,6 +387,13 @@ export interface components {
       /** Description */
       description: string | null;
     };
+    /** StageCompletion */
+    StageCompletion: {
+      /** Gametime */
+      gametime: number;
+      /** Duration */
+      duration: number;
+    };
     /** StageConfig */
     StageConfig: {
       /** Slug */
@@ -421,7 +484,7 @@ export interface operations {
       /** @description Successful Response */
       200: {
         content: {
-          "application/json": components["schemas"]["Room"];
+          "application/json": components["schemas"]["RoomGame"];
         };
       };
       /** @description Validation Error */
@@ -444,6 +507,31 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["RoomConfig"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Details */
+  details_rooms__slug__segments_get: {
+    parameters: {
+      query?: {
+        funcs?: ("best" | "worst" | "average")[];
+      };
+      path: {
+        slug: string;
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */

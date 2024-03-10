@@ -1,7 +1,21 @@
 import type { SSEUpdate } from './api/sse';
 import type { components } from './api/types';
 
+export type TimerState = components['schemas']['TimerState'];
 export type Room = components['schemas']['Room'];
+export type Game = components['schemas']['Game'];
+export type RoomGame = components['schemas']['RoomGame'];
+export type RoomGameInactive = RoomGame & {
+	state: Exclude<TimerState, 'active' | 'paused' | 'finished'>;
+	game: null;
+	startTimestamp: null;
+};
+export type RoomGameActive = RoomGame & {
+	state: Exclude<TimerState, 'ready' | 'stopped'>;
+	game: Game;
+	startTimestamp: string;
+};
+export type RoomGameDiscriminated = RoomGameInactive | RoomGameActive;
 export type RoomConfig = components['schemas']['RoomConfig'];
 export type StageConfig = components['schemas']['StageConfig'];
 export type DigitalStatePuzzle = components['schemas']['DigitalStatePuzzle'];
@@ -9,7 +23,6 @@ export type SequencePuzzle = components['schemas']['SequencePuzzle'];
 export type SpeechDetectionPuzzle = components['schemas']['SpeechDetectionPuzzle'];
 export type AnyPuzzle = DigitalStatePuzzle | SequencePuzzle | SpeechDetectionPuzzle;
 export type Stage = components['schemas']['Stage'];
-export type TimerState = components['schemas']['TimerState'];
 type UpdateData = { state?: any; completed?: boolean };
 
 export function updateRoom(room: Room, data: SSEUpdate) {

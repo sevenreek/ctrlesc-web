@@ -118,7 +118,7 @@
 				{#if tabSet === 0}
 					<GameControl {room} />
 				{:else if tabSet === 1}
-					<Statistics {room} {compareSegments} sourceSegments={[1, 2, 3, 4]} />
+					<Statistics {room} {compareSegments} />
 				{:else if tabSet === 2}
 					(tab panel 3 contents)
 				{/if}
