@@ -1,7 +1,7 @@
 <script lang="ts">
-    let {icon, size = "md"}: {
+    let {icon, size = "md", ...rest}: {
         icon: string,
-        size?: '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
+        size?: '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl',
     } = $props();
     const sizeMapping = {
         "2xs": "w-2 h-2",
@@ -18,4 +18,4 @@
     }
 </script>
 
-<span class="icon-[mingcute--{icon}] {sizeMapping[size]} flex justify-center"></span>
+<span class="icon-[mingcute--{icon}] {sizeMapping[size]} flex justify-center" {...rest}></span>

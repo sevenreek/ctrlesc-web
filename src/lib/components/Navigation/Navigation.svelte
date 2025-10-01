@@ -1,29 +1,52 @@
 <script lang="ts">
 	import type { Room } from '$lib/room';
-	import { Navigation } from '@skeletonlabs/skeleton-svelte';
-	import MingIcon from '../icons/MingIcon.svelte';
-	let {rooms}: {rooms: Room[]} = $props();
-
+	import MingIcon from '$lib/components/icons/MingIcon.svelte';
+	import * as Sidebar from '$lib/components/ui/sidebar';
+	let { rooms }: { rooms: Room[] } = $props();
 </script>
 
-<Navigation.Rail expanded={true}>
-	{#snippet header()}
-		<Navigation.Tile href="/" labelExpanded="Dashboard">
-			<MingIcon icon="home-2-fill" size="md"/>
-		</Navigation.Tile>
-	{/snippet}
-	{#snippet tiles()}
-	{#each rooms as room}
-		<h2 class="w-full text-left pl-2 text-sm">Rooms</h2>
-		<Navigation.Tile href="/rooms/{room.slug}" labelExpanded={room.name}></Navigation.Tile>
-	{/each}
-	{/snippet}
-	
-	{#snippet footer()}
-		<h2 class="w-full text-left pl-2 text-sm">Data</h2>
-		<hr/>
-		<Navigation.Tile href="/" labelExpanded="Stats"></Navigation.Tile>
-		<Navigation.Tile href="/" labelExpanded="Logs"></Navigation.Tile>
-		<Navigation.Tile href="/" labelExpanded="Settings"></Navigation.Tile>
-	{/snippet}
-</Navigation.Rail>
+<Sidebar.Root variant="sidebar" collapsible="none">
+	<Sidebar.Header>
+		<Sidebar.MenuButton>
+		<a href="/">Dashboard</a>
+		</Sidebar.MenuButton>
+	</Sidebar.Header>
+	<Sidebar.Content>
+		<Sidebar.Group>
+			<Sidebar.GroupLabel>Rooms</Sidebar.GroupLabel>
+			<Sidebar.GroupContent>
+				<Sidebar.Menu>
+					{#each rooms as room}
+						<Sidebar.MenuItem>
+							<Sidebar.MenuButton>
+								<a href="/rooms/{room.slug}">{room.name}</a>
+							</Sidebar.MenuButton>
+						</Sidebar.MenuItem>
+					{/each}
+				</Sidebar.Menu>
+			</Sidebar.GroupContent>
+		</Sidebar.Group>
+		<Sidebar.Group>
+			<Sidebar.GroupLabel>Data</Sidebar.GroupLabel>
+			<Sidebar.GroupContent>
+				<Sidebar.Menu>
+					<Sidebar.MenuItem>
+						<Sidebar.MenuButton>
+							<a href="/">Stats</a>
+						</Sidebar.MenuButton>
+					</Sidebar.MenuItem>
+					<Sidebar.MenuItem>
+						<Sidebar.MenuButton>
+							<a href="/">Logs</a>
+						</Sidebar.MenuButton>
+					</Sidebar.MenuItem>
+					<Sidebar.MenuItem>
+						<Sidebar.MenuButton>
+							<a href="/">Settings</a>
+						</Sidebar.MenuButton>
+					</Sidebar.MenuItem>
+				</Sidebar.Menu>
+			</Sidebar.GroupContent>
+		</Sidebar.Group>
+	</Sidebar.Content>
+</Sidebar.Root>
