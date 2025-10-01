@@ -1,35 +1,35 @@
 <script lang="ts">
 	import type { Room } from '$lib/room';
-	import 'iconify-icon';
-	import LabelledProgressBar from '$lib/components/LabelledProgressBar.svelte';
+	import LabelledProgressBar from '$lib/components/progress/LabelledProgressBar.svelte';
 	import { getElapsedSeconds, formatDuration } from '$lib/timeUtil';
+	import MingIcon from '../icons/MingIcon.svelte';
 
-	export let room: Room;
-
-	let interval: ReturnType<typeof setInterval>;
-	let icon = '';
-	let stateMessage = '';
-	let elapsedTime: number | undefined = undefined;
-	let elapsedTimeString = '';
-	let elapsedTimeProgressBarValue: number | undefined = elapsedTime;
-	let remainingTimeString = '';
-	let timeMeterColor = 'bg-primary-600';
-	let totalTime = 0;
+	let {room}: {room: Room} = $props();
 	const {
 		extraTime,
 		baseTime,
 		startedOn,
 		stoppedOn,
-		state,
+		state: roomState,
 		completion,
 		maxCompletion,
 		name,
 		slug,
 		stage
-	} = room;
-	let stageString = stage;
+	} = $derived(room);
 
-	$: {
+	let interval: ReturnType<typeof setInterval> | undefined = $state(undefined);
+	let icon = $state('');
+	let stateMessage = $state('');
+	let elapsedTime: number | undefined = $state(undefined);
+	let elapsedTimeString = $state('');
+	let elapsedTimeProgressBarValue: number | undefined = $state(elapsedTime);
+	let remainingTimeString = $state('');
+	let timeMeterColor = $state('bg-primary-600');
+	let totalTime = $state(0);
+    let stageString = $state(stage);
+
+	$effect(() => {
 		totalTime = extraTime + baseTime;
 		elapsedTime = getElapsedSeconds(startedOn);
 		elapsedTimeProgressBarValue = elapsedTime;
@@ -45,7 +45,7 @@
 		} else if (elapsedTime > baseTime) {
 			timeMeterColor = 'bg-warning-600';
 		}
-		switch (state) {
+		switch (roomState) {
 			case 'ready':
 				icon = 'mingcute:door-fill';
 				stateMessage = 'Ready';
@@ -81,15 +81,16 @@
 			}
 		}, 1000);
 	}
+);
 </script>
 
-<div class="block card overflow-hidden">
+<div class="card preset-filled-surface-100-900 overflow-hidden">
 	<header>
 		<a
 			class="px-4 py-4 ease-out duration-200 hover:bg-surface-700 flex flex-row-reverse items-center w-full"
 			href="/rooms/{slug}"
 		>
-			<iconify-icon class="text-xl" {icon} />
+			<MingIcon size="md" {icon} />
 			<div class="grow">
 				<h3 class="text-lg font-bold">
 					{name}
@@ -100,28 +101,34 @@
 			</div>
 		</a>
 	</header>
-	<hr />
+	<hr/>
 	<section class="flex flex-row p-6 gap-4 items-center">
 		<div class="grow-[5]">
 			<LabelledProgressBar
-				label="Time left"
+				labelText="Time left"
 				value={elapsedTimeProgressBarValue}
 				max={totalTime}
 				meter={timeMeterColor}
 			>
-				<span class="text-sm" slot="left">{elapsedTimeString}</span>
-				<span class="text-sm" slot="right">{remainingTimeString}</span>
+                {#snippet left()}
+                    <span class="text-sm">{elapsedTimeString}</span>
+                {/snippet}
+                {#snippet right()}
+                    <span class="text-sm">{remainingTimeString}</span>
+                {/snippet}
 			</LabelledProgressBar>
 			<LabelledProgressBar
 				class="mt-2"
-				label="Progress"
+				labelText="Progress"
 				value={completion}
 				max={maxCompletion}
 				meter="bg-secondary-600"
 			>
-				<span class="text-sm" slot="left">
-					{completion ? `${Math.floor((completion / maxCompletion) * 100)}%` : '0%'}
-				</span>
+                {#snippet left()}
+                    <span class="text-sm">
+                        {completion ? `${Math.floor((completion / maxCompletion) * 100)}%` : '0%'}
+                    </span>
+                {/snippet}
 			</LabelledProgressBar>
 		</div>
 		<div class="grow-[1] flex flex-col items-end">

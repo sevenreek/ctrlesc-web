@@ -1,27 +1,29 @@
 <script lang="ts">
 	import type { Room } from '$lib/room';
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import { Navigation } from '@skeletonlabs/skeleton-svelte';
+	import MingIcon from '../icons/MingIcon.svelte';
+	let {rooms}: {rooms: Room[]} = $props();
 
-	export let rooms: Room[];
-
-	const drawerStore = getDrawerStore();
-	function drawerClose(): void {
-		drawerStore.close();
-	}
 </script>
 
-<nav class="list-nav p-4">
-	<ul>
-		<li><a on:click={drawerClose} href="/" class="font-semibold">Dashboard</a></li>
-		<hr />
-		<h1 class="py-2 px-1 font-bold text-xs">Rooms</h1>
-		{#each rooms as room}
-			<li><a on:click={drawerClose} href="/rooms/{room.slug}">{room.name}</a></li>
-		{/each}
-		<hr />
-		<h1 class="py-2 px-1 font-bold text-xs">Data</h1>
-		<li><a on:click={drawerClose} href="/">Stats</a></li>
-		<li><a on:click={drawerClose} href="/">Logs</a></li>
-		<li><a on:click={drawerClose} href="/">Settings</a></li>
-	</ul>
-</nav>
+<Navigation.Rail expanded={true}>
+	{#snippet header()}
+		<Navigation.Tile href="/" labelExpanded="Dashboard">
+			<MingIcon icon="home-2-fill" size="md"/>
+		</Navigation.Tile>
+	{/snippet}
+	{#snippet tiles()}
+	{#each rooms as room}
+		<h2 class="w-full text-left pl-2 text-sm">Rooms</h2>
+		<Navigation.Tile href="/rooms/{room.slug}" labelExpanded={room.name}></Navigation.Tile>
+	{/each}
+	{/snippet}
+	
+	{#snippet footer()}
+		<h2 class="w-full text-left pl-2 text-sm">Data</h2>
+		<hr/>
+		<Navigation.Tile href="/" labelExpanded="Stats"></Navigation.Tile>
+		<Navigation.Tile href="/" labelExpanded="Logs"></Navigation.Tile>
+		<Navigation.Tile href="/" labelExpanded="Settings"></Navigation.Tile>
+	{/snippet}
+</Navigation.Rail>
