@@ -12,7 +12,7 @@
 </script>
 
 {#if $state.chosenStage === thisStageIndex}
-	<div>
+	<div >
 		<slot />
 	</div>
 {/if}

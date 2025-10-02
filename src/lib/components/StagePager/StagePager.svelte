@@ -24,7 +24,7 @@
 		if (isActive) {
 			return 'destructive';
 		} else if (isCompleted) {
-			return 'primary';
+			return 'default';
 		} else {
 			return 'secondary';
 		}

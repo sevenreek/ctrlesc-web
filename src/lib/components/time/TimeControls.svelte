@@ -75,13 +75,14 @@
 	};
 
 	let interval: ReturnType<typeof setInterval> | undefined = undefined;
-	let elapsedTime = $derived.by<number | undefined>(() => {
+	function calculateElapsedTime(room: Room) {
 		if (room.state === "active") {
-			return (getElapsedSeconds(room.startTimestamp) ?? 0) + room.timeElapsedOnPause;
+			return (getElapsedSeconds(room.startTimestamp) ?? 0);
 		} else {
 			return room.timeElapsedOnPause;
 		}
-	});
+	}
+	let elapsedTime = $state<number | undefined>(calculateElapsedTime(room));
 	let totalTime = $derived(room.extraTime + room.baseTime);
 	let elapsedTimeProgressBarValue: number = $derived.by(() => {
 		if(elapsedTime === undefined) {
@@ -104,9 +105,7 @@
 	const ACTIONS = $derived(ROOM_STATE_MAPPING[room.state as TimerState]);
 	$effect(() => {
 		interval = setInterval(() => {
-			if (room.startTimestamp) {
-				elapsedTime = getElapsedSeconds(room.startTimestamp) ?? 0 + (room.timeElapsedOnPause);
-			}
+			elapsedTime = calculateElapsedTime(room);
 		}, 1000);
 		return () => clearInterval(interval);
 	})
@@ -115,7 +114,9 @@
 <div class="flex flex-col sm:flex-row gap-4 items-center">
 	{#if ACTIONS.secondaryIcon}
 		<Button.Root
-			variant="secondary"
+			variant="outline"
+			size="icon"
+			class="rounded-full px-2"
 			onclick={async () => {
 				const successMessage = ACTIONS.secondaryActionSuccess;
 				const errorMessage = ACTIONS.secondaryActionFailed;
@@ -127,6 +128,10 @@
 				}
 			}}
 		>
+			<Icon
+				class="text-2xl md:text-4xl transition-all group-hover:opacity-0 duration-300"
+				icon={ACTIONS.secondaryIcon}
+			/>
 		</Button.Root>
 	{/if}
 	<div class="flex flex-row sm:flex-col justify-center gap-2">
@@ -161,19 +166,20 @@
 		<RadialProgress
 			class="col-span-full row-span-full"
 			value={elapsedTimeProgressBarValue}
-			size={90}
+			size={140}
 			strokeWidth={10}
 		/>
 		<RadialProgress
 			class="col-span-full row-span-full"
 			value={completionFraction * 100}
-			size={140}
+			size={90}
 			strokeWidth={10}
 		/>
 		<div class="flex items-center justify-center relative w-full col-span-full row-span-full text-center">
 			<Button.Root
 				class="group absolute rounded-full px-2"
 				variant="outline"
+				size="icon"
 				onclick={async () => {
 					const successMessage = ACTIONS.primaryActionSuccess;
 					const errorMessage = ACTIONS.primaryActionFailed;
@@ -196,9 +202,6 @@
 					/>
 				</div>
 			</Button.Root>
-			<span class="block w-full text-xs top-8 ml-20 sm:ml-0 sm:mt-16 md:mt-24 md:text-sm">
-				{Math.round(completionFraction * 100)}%
-			</span>
 		</div>
 	</div>
 	<div class="grid grid-cols-2 content-center gap-x-8 gap-y-4">
@@ -207,7 +210,7 @@
 			<div class="uppercase text-2xs font-bold">{elapsedTime ? 'Elapsed' : 'State'}</div>
 		</div>
 		<div>
-			<div class="text-2xl">{remainingTimeString}</div>
+			<div class="text-2xl">{formatDuration(remainingTime)}</div>
 			<div class="uppercase text-2xs font-bold">Left</div>
 		</div>
 		<div>
