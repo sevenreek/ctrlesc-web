@@ -11,19 +11,19 @@
 	let { children, data }: {children: Snippet, data: LayoutData} = $props();
 </script>
 
-<div class="grid grid-rows-[auto_1fr_auto] h-screen">
+<div class="grid grid-rows-[auto_1fr_auto] h-screen w-full">
 	<header class="sticky top-0 z-20">
 		<AppBar/>
 	</header>
-	<div class="grid grid-cols-1 md:grid-cols-[auto_1fr] h-screen">
-		<Sidebar.Provider >
+	<div class="grid grid-cols-1 md:grid-cols-[auto_1fr] h-screen w-full">
+		<Sidebar.Provider class="w-full">
 			<aside class="h-full">
 				<Navigation rooms={data.rooms} />
 			</aside>
-			<main>
-				{@render children?.()}
-			</main>
 		</Sidebar.Provider>
+		<main class="w-full h-full">
+			{@render children?.()}
+		</main>
 	</div>
 	<!--
 	<aside class="fixed right-4 bottom-4 flex flex-col gap-2 w-96">

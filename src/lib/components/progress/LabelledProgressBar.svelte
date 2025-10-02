@@ -1,11 +1,13 @@
 <script lang="ts">
-    import { Progress } from "@skeletonlabs/skeleton-svelte";
+    import * as Progress from "$lib/components/ui/progress";
 	import type { Snippet } from "svelte";
 
-	let {class: classes, left, right, ...rest}: {
-        class: string,
+	let {class: classes = "", left, right, ...rest}: {
+		value: number | null,
+        class?: string,
         left?: Snippet,
         right?: Snippet,
+		max: number
     } = $props()
 </script>
 
@@ -14,5 +16,5 @@
 		<div>{@render left?.()}</div>
 		<div>{@render right?.()}</div>
 	</div>
-	<Progress {...rest} />
+	<Progress.Root {...rest} />
 </div>
