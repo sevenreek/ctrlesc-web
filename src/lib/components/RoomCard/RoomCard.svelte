@@ -4,29 +4,18 @@
 	import { getElapsedSeconds, formatDuration } from '$lib/timeUtil';
 	import MingIcon from '../icons/MingIcon.svelte';
 	import * as Card from "$lib/components/ui/card"
+	import Icon from '@iconify/svelte';
 
 	let {room}: {room: Room} = $props();
-	const {
-		extraTime,
-		baseTime,
-		startedOn,
-		stoppedOn,
-		state: roomState,
-		completion,
-		maxCompletion,
-		name,
-		slug,
-		stage
-	} = $derived(room);
 
-	let elapsedTime: number | undefined = $state(getElapsedSeconds(startedOn));
+	let elapsedTime: number | undefined = $state(getElapsedSeconds(room.startTimestamp));
 	let interval: ReturnType<typeof setInterval> | undefined = setInterval(() => {
-		if (startedOn) {
-			elapsedTime = getElapsedSeconds(startedOn);
+		if (room.startTimestamp) {
+			elapsedTime = getElapsedSeconds(room.startTimestamp);
 		}
 	}, 1000);
 	$effect(() => {
-		elapsedTime = getElapsedSeconds(startedOn);
+		elapsedTime = getElapsedSeconds(room.startTimestamp);
 		return () => clearInterval(interval);
 	})
 	type CardState = {
@@ -43,14 +32,14 @@
 		let icon = "";
 		let stateString = "";
 		let elapsedTimeString = formatDuration(elapsedTime);
-		let totalTime = baseTime + extraTime;
-		let stageString = stage;
+		let totalTime = room.baseTime + room.extraTime;
+		let stageString = room.activeStage != null ? `Stage: (${room.activeStage + 1}/${room.stages.length}) ${room.stages.at(room.activeStage).name}` : "-";
 		let elapsedTimeProgressBarValue: number | null = elapsedTime !== undefined ? elapsedTime : null;
 		let remainingTimeString = formatDuration(totalTime - (elapsedTime ?? 0))
-		if (extraTime) {
-			remainingTimeString = remainingTimeString.concat(` (+${Math.floor(extraTime / 60)}m)`);
+		if (room.extraTime) {
+			remainingTimeString = remainingTimeString.concat(` (+${Math.floor(room.extraTime / 60)}m)`);
 		}
-		switch (roomState) {
+		switch (room.state) {
 			case 'ready':
 				icon = 'mingcute:door-fill';
 				stateString = 'Ready';
@@ -95,12 +84,12 @@
 	<Card.Header class="px-0 gap-0">
 		<a
 			class="rounded-t-lg px-4 py-5 ease-out duration-200  flex flex-row-reverse items-center w-full hover:bg-card-clickable"
-			href="/rooms/{slug}"
+			href="/rooms/{room.slug}"
 		>
-			<MingIcon size="md" icon={card.icon} />
+			<Icon icon={card.icon} />
 			<div class="grow">
 				<h3 class="text-lg font-bold">
-					{name}
+					{room.name}
 				</h3>
 				<div class="text-xs opacity-60">
 					<span>{card.stage}</span>
@@ -124,20 +113,6 @@
 					{/snippet}
 				</LabelledProgressBar>
 				<span class="text-sm italic">Time left</span>
-			</div>
-			<div>
-				<LabelledProgressBar
-					class="mt-2"
-					value={completion}
-					max={maxCompletion}
-				>
-					{#snippet left()}
-						<span class="text-md">
-							{completion ? `${Math.floor((completion / maxCompletion) * 100)}%` : '0%'}
-						</span>
-					{/snippet}
-				</LabelledProgressBar>
-				<span class="text-sm italic">Progress</span>
 			</div>
 		</div>
 	</Card.Content>
