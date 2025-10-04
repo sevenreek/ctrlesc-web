@@ -7,7 +7,7 @@
 	import * as Button from "$lib/components/ui/button"
 	import Icon from "@iconify/svelte"
 
-	let {room}: {room: Room} = $props();
+	let {room, class: classes}: {room: Room, class: string} = $props();
 
 	function success(s: string) {
 		console.warn("Would raise success toast")
@@ -76,11 +76,7 @@
 
 	let interval: ReturnType<typeof setInterval> | undefined = undefined;
 	function calculateElapsedTime(room: Room) {
-		if (room.state === "active") {
-			return (getElapsedSeconds(room.startTimestamp) ?? 0);
-		} else {
-			return room.timeElapsedOnPause;
-		}
+		return (getElapsedSeconds(room.startTimestamp) ?? 0) - room.timeElapsedOnPause;
 	}
 	let elapsedTime = $state<number | undefined>(calculateElapsedTime(room));
 	let totalTime = $derived(room.extraTime + room.baseTime);
@@ -105,13 +101,15 @@
 	const ACTIONS = $derived(ROOM_STATE_MAPPING[room.state as TimerState]);
 	$effect(() => {
 		interval = setInterval(() => {
-			elapsedTime = calculateElapsedTime(room);
+			if(room.state === "active") {
+				elapsedTime = calculateElapsedTime(room);
+			}
 		}, 1000);
 		return () => clearInterval(interval);
 	})
 </script>
 
-<div class="flex flex-col sm:flex-row gap-4 items-center">
+<div class="flex flex-col sm:flex-row gap-4 items-center {classes}">
 	{#if ACTIONS.secondaryIcon}
 		<Button.Root
 			variant="outline"

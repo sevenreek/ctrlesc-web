@@ -8,7 +8,7 @@
 	let { room }: {room: Room} = $props();
 </script>
 
-<TimeControls {room} />
+<TimeControls {room} class="my-2" />
 <StagePager class="w-full" activeStage={room.activeStage ?? 0}>
 	{#each room.stages as stage (stage.slug)}
 		<Stage>
