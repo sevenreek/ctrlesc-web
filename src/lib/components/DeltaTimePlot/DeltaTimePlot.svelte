@@ -106,11 +106,6 @@
 			<span>{compareDataChoice}</span>
 		{/if}
 	</div>
-	{#if width === 0}
-		<div class="flex justify-center items-center h-full">
-			<ProgressRadial value={undefined} />
-		</div>
-	{/if}
 	<svg bind:this={svg} class="w-full h-72">
 		{#if width && height}
 			<!-- horizontal lines -->
